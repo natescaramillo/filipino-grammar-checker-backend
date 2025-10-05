@@ -28,7 +28,7 @@
               content: `Ikaw ay isang tagasuri ng gramatika sa wikang Filipino.
     Sagutin lamang sa format na ito:
 
-    MALI: <**maling bahagi**>
+MALI: <**lahat ng maling bahagi**>  
     TAMANG SAGOT: <buong tamang pangungusap>
 
     - I-highlight ang maling bahagi gamit ang **bold**.
@@ -37,7 +37,7 @@
             { role: "user", content: pangungusap }
           ],
           temperature: 0,
-          max_tokens: 200
+          max_tokens: 100
         });
 
         const tugon = completion.choices[0].message.content.trim();
