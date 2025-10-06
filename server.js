@@ -11,7 +11,22 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// ✅ Endpoint: Suriin ang gramatika
+// Listahan ng bad words (pwede dagdagan pa)
+const badWords = ["tanga", "gago", "bwisit", "peste", "punyeta"];
+
+// Function: Check kung may bad words
+function mayBadWords(text) {
+  return badWords.some(word => text.toLowerCase().includes(word));
+}
+
+// Function: Check kung Filipino lang (basic check)
+// Gumagamit ng simpleng pattern para makita kung may English
+function tagalogLang(text) {
+  const englishPattern = /\b(hello|hi|how|you|are|is|am|the|this|that|what|why|when|where|good|morning|night|love|friend)\b/i;
+  return !englishPattern.test(text);
+}
+
+// Endpoint: Suriin ang gramatika
 app.post("/suriin-gramar", async (req, res) => {
   try {
     const { pangungusap } = req.body;
@@ -20,6 +35,17 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.status(400).send("Walang laman ang pangungusap.");
     }
 
+    // 🚫 Check kung may bad words
+    if (mayBadWords(pangungusap)) {
+      return res.status(400).send("Bawal gumamit ng masasamang salita.");
+    }
+
+    //  Check kung Filipino lang
+    if (!tagalogLang(pangungusap)) {
+      return res.status(400).send("Bawal mag-English o ibang wika, Filipino lang ang tanggap.");
+    }
+
+    // Proceed kay OpenAI kung pasado
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -34,7 +60,7 @@ Gamitin lamang ang format na ito:
 MALI: <*lahat ng maling bahagi*>  
 TAMANG SAGOT: <buong tamang pangungusap>
 
-📋 Mga Tagubilin:
+Mga Tagubilin:
 - Kung higit sa isa ang mali, ilista lahat ng maling bahagi, pinaghiwalay ng kuwit (hal. *Ako*, *kain*, *ng*).
 - Lahat ng maling bahagi ay naka-bold (*text*).
 - Walang karagdagang paliwanag, JSON, o ibang teksto.
@@ -57,7 +83,7 @@ TAMANG SAGOT: <buong tamang pangungusap>
     res.type("text/plain").send(tugon);
 
   } catch (error) {
-    console.error("❌ Error:", error);
+    console.error("Error:", error);
     res.status(500).json({ error: error.message });
   }
 });
