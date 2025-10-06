@@ -12,7 +12,36 @@ const openai = new OpenAI({
 });
 
 // Listahan ng bad words (pwede dagdagan pa)
-const badWords = ["tanga", "gago", "bwisit", "peste", "punyeta"];
+const badWords = [
+  
+  // Common Filipino insults
+  "tanga", "bobo", "gago", "ulol", "bwisit", "peste", "punyeta", "leche",
+  "lintik", "putragis", "putik", "walanghiya", "tarantado", "hayop", "inutil",
+
+  // Sexually explicit or vulgar terms
+  "puki", "pekpek", "tite", "burat", "kantot", "jakol", "libog",
+  "etits", "tamod", "bayag", "puwet", "ungas", "kupal", "pucha", "putcha",
+
+  // English/Taglish profanity
+  "fuck", "shit", "asshole", "motherfucker", "bastard", "dumbass", "slut", "whore",
+  "bullshit", "crap", "dick", "cock", "fucker", "bitch",
+
+  // Religious or offensive euphemisms
+  "diyosko", "susmaryosep", "jesko", "inamomop", "anakng", "anakngtinapa",
+  "anakngpating", "putang", "putangina", "ina", "ina mo", "putanginamo",
+
+  // Variations & misspellings
+  "pota", "puta", "potangina", "fck", "fak", "fucc", "sh1t", "b1tch", "tnga", "ggg", "ul0l",
+
+  // Racist / discriminatory slurs (censored for safety)
+  "n**ga", "n**ger", "ch*nk", "bumb*y", "ar*b", "ind**", "t**ga", "blacky","chingchong",
+  "negra", "negro", "bakla", "tomboy", "retard", "mongol", "abo", "unggoy","bisaya","bisakol","tangalog",
+
+  // Homophobic & body-shaming
+  "bakla", "bading", "bayot", "tibo", "chaka", "panget", "pataygutom", "tabachoy","yobmot",
+];
+
+
 
 // Function: Check kung may bad words
 function mayBadWords(text) {
@@ -22,9 +51,24 @@ function mayBadWords(text) {
 // Function: Check kung Filipino lang (basic check)
 // Gumagamit ng simpleng pattern para makita kung may English
 function tagalogLang(text) {
-  const englishPattern = /\b(hello|hi|how|you|are|is|am|the|this|that|what|why|when|where|good|morning|night|love|friend)\b/i;
-  return !englishPattern.test(text);
+  const normalized = text.toLowerCase().replace(/[.,!?]/g, "");
+
+  const englishWords = `
+    hello|hi|hey|how|who|what|when|where|why|which|
+    you|your|yours|are|is|am|was|were|be|been|being|
+    the|this|that|these|those|a|an|and|but|or|if|then|
+    there|here|their|they|them|he|she|it|we|us|our|
+    my|me|mine|his|her|hers|its|do|does|did|done|make|
+    go|went|come|say|said|see|saw|know|want|love|like|
+    good|bad|morning|night|afternoon|friend|please|sorry|
+    thank|thanks|welcome|ok|okay|sure|yes|no|maybe|because
+  `.replace(/\s+/g, ""); // remove whitespace & newlines
+
+  const englishPattern = new RegExp(`\\b(${englishWords})\\b`, "i");
+
+  return !englishPattern.test(normalized);
 }
+
 
 // Endpoint: Suriin ang gramatika
 app.post("/suriin-gramar", async (req, res) => {
