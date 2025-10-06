@@ -11,9 +11,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// Listahan ng bad words (pwede dagdagan pa)
+// 🧩 Listahan ng bad words (pwede dagdagan pa)
 const badWords = [
-  
   // Common Filipino insults
   "tanga", "bobo", "gago", "ulol", "bwisit", "peste", "punyeta", "leche",
   "lintik", "putragis", "putik", "walanghiya", "tarantado", "hayop", "inutil",
@@ -34,22 +33,24 @@ const badWords = [
   "pota", "puta", "potangina", "fck", "fak", "fucc", "sh1t", "b1tch", "tnga", "ggg", "ul0l",
 
   // Racist / discriminatory slurs (censored for safety)
-  "n**ga", "n**ger", "ch*nk", "bumb*y", "ar*b", "ind**", "t**ga", "blacky","chingchong",
-  "negra", "negro", "bakla", "tomboy", "retard", "mongol", "abo", "unggoy","bisaya","bisakol","tangalog",
+  "n**ga", "n**ger", "ch*nk", "bumb*y", "ar*b", "ind**", "t**ga", "blacky", "chingchong",
+  "negra", "negro", "bakla", "tomboy", "retard", "mongol", "abo", "unggoy", "bisaya", "bisakol", "tangalog",
 
   // Homophobic & body-shaming
-  "bakla", "bading", "bayot", "tibo", "chaka", "panget", "pataygutom", "tabachoy","yobmot",
+  "bakla", "bading", "bayot", "tibo", "chaka", "panget", "pataygutom", "tabachoy", "yobmot"
 ];
 
-
-
-// Function: Check kung may bad words
-function mayBadWords(text) {
-  return badWords.some(word => text.toLowerCase().includes(word));
+// 🧩 Function: Censor bad words
+function censorBadWords(text) {
+  let censored = text;
+  badWords.forEach(word => {
+    const regex = new RegExp(`\\b${word.replace(/\*/g, ".*")}\\b`, "gi");
+    censored = censored.replace(regex, "****");
+  });
+  return censored;
 }
 
-// Function: Check kung Filipino lang (basic check)
-// Gumagamit ng simpleng pattern para makita kung may English
+// 🧩 Function: Check kung Filipino lang
 function tagalogLang(text) {
   const normalized = text.toLowerCase().replace(/[.,!?]/g, "");
 
@@ -62,34 +63,31 @@ function tagalogLang(text) {
     go|went|come|say|said|see|saw|know|want|love|like|
     good|bad|morning|night|afternoon|friend|please|sorry|
     thank|thanks|welcome|ok|okay|sure|yes|no|maybe|because
-  `.replace(/\s+/g, ""); // remove whitespace & newlines
+  `.replace(/\s+/g, "");
 
   const englishPattern = new RegExp(`\\b(${englishWords})\\b`, "i");
 
   return !englishPattern.test(normalized);
 }
 
-
-// Endpoint: Suriin ang gramatika
+// 🧩 Endpoint: Suriin ang gramatika
 app.post("/suriin-gramar", async (req, res) => {
   try {
-    const { pangungusap } = req.body;
+    let { pangungusap } = req.body;
 
     if (!pangungusap || pangungusap.trim() === "") {
       return res.status(400).send("Walang laman ang pangungusap.");
     }
 
-    // 🚫 Check kung may bad words
-    if (mayBadWords(pangungusap)) {
-      return res.status(400).send("Bawal gumamit ng masasamang salita.");
-    }
-
-    //  Check kung Filipino lang
+    // 🚫 Check kung Filipino lang
     if (!tagalogLang(pangungusap)) {
       return res.status(400).send("Bawal mag-English o ibang wika, Filipino lang ang tanggap.");
     }
 
-    // Proceed kay OpenAI kung pasado
+    // ✳️ Censor bad words bago ipasa sa OpenAI
+    pangungusap = censorBadWords(pangungusap);
+
+    // ➤ Tawagin si OpenAI
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -118,12 +116,10 @@ Mga Tagubilin:
 
     const tugon = completion.choices[0].message.content.trim();
 
-    // ➤ Walang mali → walang output (204)
     if (!tugon || tugon.toLowerCase().includes("walang mali")) {
       return res.status(204).send();
     }
 
-    // ➤ Ibalik plain text lang
     res.type("text/plain").send(tugon);
 
   } catch (error) {
