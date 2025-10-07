@@ -11,11 +11,11 @@ const openai = new OpenAI({
 apiKey: process.env.OPENAI_API_KEY
 });
 
-// Listahan ng bad words (pwede dagdagan pa)
+//  Listahan ng bad words (pwede dagdagan pa)
 const badWords = [
 // Common Filipino insults
 "tanga", "bobo", "gago", "ulol", "bwisit", "peste", "punyeta", "leche",
-"lintik", "putragis", "putik", "walanghiya", "tarantado", "hayop", "inutil","tanginang","putanginang",
+"lintik", "putragis", "putik", "walanghiya", "tarantado", "hayop", "inutil", "tanginang", "putanginang",
 
 // Sexually explicit or vulgar terms
 "puki", "pekpek", "tite", "burat", "kantot", "jakol", "libog",
@@ -32,7 +32,7 @@ const badWords = [
 // Variations & misspellings
 "pota", "puta", "potangina", "fck", "fak", "fucc", "sh1t", "b1tch", "tnga", "ggg", "ul0l",
 
-// Racist / discriminatory slurs (censored for safety)
+// Racist / discriminatory slurs
 "n**ga", "n**ger", "ch*nk", "bumb*y", "ar*b", "ind**", "t**ga", "blacky", "chingchong",
 "negra", "negro", "bakla", "tomboy", "retard", "mongol", "abo", "unggoy", "bisaya", "bisakol", "tangalog",
 
@@ -59,22 +59,21 @@ const englishPattern = new RegExp(`\\b(${englishWords})\\b`, "i");
 return !englishPattern.test(normalized);
 }
 
-// Endpoint: Suriin ang gramatika
+//  Endpoint: Suriin ang gramatika
 app.post("/suriin-gramar", async (req, res) => {
 try {
 let { pangungusap } = req.body;
 
-```
 if (!pangungusap || pangungusap.trim() === "") {
   return res.status(400).send("Walang laman ang pangungusap.");
 }
 
-// Check kung Filipino lang
+//  Check kung Filipino lang
 if (!tagalogLang(pangungusap)) {
   return res.status(400).send("Bawal mag-English o ibang wika, Filipino lang ang tanggap.");
 }
 
-// Check kung may mura / bad words
+//  Check kung may mura / bad words
 const lowerText = pangungusap.toLowerCase();
 const mayMura = badWords.some(word => {
   const regex = new RegExp(`\\b${word.replace(/\*/g, ".*")}\\b`, "gi");
@@ -82,17 +81,17 @@ const mayMura = badWords.some(word => {
 });
 
 if (mayMura) {
-  return res.status(400).send(" ! Bawal gumamit ng malaswang o mapanirang salita.");
+  return res.status(400).send("⚠️ Bawal gumamit ng malaswang o mapanirang salita.");
 }
 
-// ➤ Tawagin si OpenAI para suriin ang gramatika
+//  Tawagin si OpenAI para suriin ang gramatika
 const completion = await openai.chat.completions.create({
   model: "gpt-4o-mini",
   messages: [
     {
       role: "system",
       content: `
-```
+
 
 Ikaw ay isang tagasuri ng gramatika sa wikang Filipino.
 Layunin mong tukuyin at itama ang LAHAT ng maling bahagi sa pangungusap.
@@ -131,5 +130,5 @@ Mga Tagubilin:
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-console.log(`Server tumatakbo sa http://localhost:${PORT}`);
+console.log(`✅ Server tumatakbo sa http://localhost:${PORT}`);
 });
