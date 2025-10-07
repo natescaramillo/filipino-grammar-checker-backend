@@ -8,127 +8,111 @@ const app = express();
 app.use(express.json());
 
 const openai = new OpenAI({
-apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY
 });
 
-//  Listahan ng bad words (pwede dagdagan pa)
+// Listahan ng masasamang salita
 const badWords = [
-// Common Filipino insults
-"tanga", "bobo", "gago", "ulol", "bwisit", "peste", "punyeta", "leche",
-"lintik", "putragis", "putik", "walanghiya", "tarantado", "hayop", "inutil", "tanginang", "putanginang",
-
-// Sexually explicit or vulgar terms
-"puki", "pekpek", "tite", "burat", "kantot", "jakol", "libog",
-"etits", "tamod", "bayag", "puwet", "ungas", "kupal", "pucha", "putcha",
-
-// English/Taglish profanity
-"fuck", "shit", "asshole", "motherfucker", "bastard", "dumbass", "slut", "whore",
-"bullshit", "crap", "dick", "cock", "fucker", "bitch",
-
-// Religious or offensive euphemisms
-"diyosko", "susmaryosep", "jesko", "inamomop", "anakng", "anakngtinapa",
-"anakngpating", "putang", "putangina", "ina", "ina mo", "putanginamo",
-
-// Variations & misspellings
-"pota", "puta", "potangina", "fck", "fak", "fucc", "sh1t", "b1tch", "tnga", "ggg", "ul0l",
-
-// Racist / discriminatory slurs
-"n**ga", "n**ger", "ch*nk", "bumb*y", "ar*b", "ind**", "t**ga", "blacky", "chingchong",
-"negra", "negro", "bakla", "tomboy", "retard", "mongol", "abo", "unggoy", "bisaya", "bisakol", "tangalog",
-
-// Homophobic & body-shaming
-"bakla", "bading", "bayot", "tibo", "chaka", "panget", "pataygutom", "tabachoy", "yobmot"
+  "tanga", "bobo", "gago", "ulol", "bwisit", "peste", "punyeta",
+  "putangina", "puta", "kantot", "tite", "burat", "libog",
+  "fuck", "shit", "bitch", "asshole", "motherfucker"
 ];
 
-//  Function: Check kung Filipino lang
-function tagalogLang(text) {
-const normalized = text.toLowerCase().replace(/[.,!?]/g, "");
-
-const englishWords = `     hello|hi|hey|how|who|what|when|where|why|which|
-    you|your|yours|are|is|am|was|were|be|been|being|
-    the|this|that|these|those|a|an|and|but|or|if|then|
-    there|here|their|they|them|he|she|it|we|us|our|
-    my|me|mine|his|her|hers|its|do|does|did|done|make|
-    go|went|come|say|said|see|saw|know|want|love|like|
-    good|bad|morning|night|afternoon|friend|please|sorry|
-    thank|thanks|welcome|ok|okay|sure|yes|no|maybe|because
-  `.replace(/\s+/g, "");
-
-const englishPattern = new RegExp(`\\b(${englishWords})\\b`, "i");
-
-return !englishPattern.test(normalized);
+// Palitan ng ** ang masasamang salita
+function censorBadWords(text) {
+  let censored = text;
+  badWords.forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, "gi");
+    censored = censored.replace(regex, "**");
+  });
+  return censored;
 }
 
-//  Endpoint: Suriin ang gramatika
+// Tukuyin kung Filipino ang pangungusap
+function mostlyFilipino(text) {
+  const filipinoWords = [
+    "ako", "ikaw", "siya", "kami", "tayo", "sila", "ay", "ng", "sa", "ang",
+    "mga", "na", "ko", "mo", "si", "ni", "kay", "ito", "iyon", "doon",
+    "dito", "nga", "rin", "din", "pa", "ba", "lang", "nang", "para", "habang"
+  ];
+  let count = 0;
+  filipinoWords.forEach(w => {
+    if (text.toLowerCase().includes(w)) count++;
+  });
+  return count >= 2;
+}
+
+// Tukuyin kung may English word
+function containsEnglish(text) {
+  const englishPattern = /\b(the|is|are|was|were|am|you|he|she|they|we|it|this|that|what|when|where|why|how|can|will|shall|do|did|does|yes|no|of|to|from|and|or|not|on|in|for)\b/i;
+  return englishPattern.test(text);
+}
+
+// Pangunahing endpoint
 app.post("/suriin-gramar", async (req, res) => {
-try {
-let { pangungusap } = req.body;
+  try {
+    let { pangungusap } = req.body;
 
-if (!pangungusap || pangungusap.trim() === "") {
-  return res.status(400).send("Walang laman ang pangungusap.");
-}
+    if (!pangungusap || pangungusap.trim() === "") {
+      return res.status(400).send("Pakisulat muna ang pangungusap.");
+    }
 
-//  Check kung Filipino lang
-if (!tagalogLang(pangungusap)) {
-  return res.status(400).send("Bawal mag-English o ibang wika, Filipino lang ang tanggap.");
-}
+    if (badWords.some(w => pangungusap.toLowerCase().includes(w))) {
+      return res.status(400).send("Bawal gumamit ng masasamang salita.");
+    }
 
-//  Check kung may mura / bad words
-const lowerText = pangungusap.toLowerCase();
-const mayMura = badWords.some(word => {
-  const regex = new RegExp(`\\b${word.replace(/\*/g, ".*")}\\b`, "gi");
-  return regex.test(lowerText);
+    if (containsEnglish(pangungusap) || !mostlyFilipino(pangungusap)) {
+      return res.status(400).send("Filipino lamang ang pinapayagan.");
+    }
+
+    pangungusap = censorBadWords(pangungusap);
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.1,
+      max_tokens: 400,
+      messages: [
+        {
+          role: "system",
+          content: `
+Ikaw ay isang eksperto sa gramatika ng wikang Filipino.
+
+Layunin:
+Suriin ang pangungusap batay sa wastong bahagi ng pananalita (pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.) at kayarian ng pangungusap (payak, tambalan, hugnayan, langkapan).
+
+Gabay sa pagsusuri:
+- Gamitin ang mga tuntunin ng bahagi ng pananalita at kayarian ng pangungusap upang matukoy kung tama o mali ang gramatika.
+- Siguraduhing may tamang pantukoy, panaguri, at simuno.
+- Suriin ang wastong gamit ng pang-ukol, pang-ugnay, at pang-uri.
+- Huwag ilista o banggitin ang mga bahagi o kayarian sa output. Gamitin lamang ito bilang batayan.
+- I-highlight (gamitin ang asterisk) *LAMANG* ang maling bahagi ng pangungusap.
+- Ang tamang sagot ay dapat plain text, walang asterisk o formatting.
+
+Format ng sagot:
+Kung mali:
+MALI: <*maling bahagi lang naka-asterisk*>
+TAMANG SAGOT: <tamang pangungusap, walang highlight>
+
+Kung tama:
+WALANG MALI
+
+Lahat ng sagot ay dapat nasa wikang Filipino lamang.
+`
+        },
+        { role: "user", content: pangungusap }
+      ]
+    });
+
+    const output = completion.choices[0].message.content.trim();
+    res.type("text/plain").send(output);
+
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
-
-if (mayMura) {
-  return res.status(400).send("⚠️ Bawal gumamit ng malaswang o mapanirang salita.");
-}
-
-//  Tawagin si OpenAI para suriin ang gramatika
-const completion = await openai.chat.completions.create({
-  model: "gpt-4o-mini",
-  messages: [
-    {
-      role: "system",
-      content: `
-
-
-Ikaw ay isang tagasuri ng gramatika sa wikang Filipino.
-Layunin mong tukuyin at itama ang LAHAT ng maling bahagi sa pangungusap.
-
-Gamitin lamang ang format na ito:
-
-MALI: <*lahat ng maling bahagi*>
-TAMANG SAGOT: <buong tamang pangungusap>
-
-Mga Tagubilin:
-
-* Kung higit sa isa ang mali, ilista lahat ng maling bahagi, pinaghiwalay ng kuwit (hal. *Ako*, *kain*, *ng*).
-* Lahat ng maling bahagi ay naka-bold (*text*).
-* Walang karagdagang paliwanag, JSON, o ibang teksto.
-* Kung WALANG MALI, magbalik ng blangko (walang output).`
-  },
-  { role: "user", content: pangungusap }
-  ],
-  temperature: 0,
-  max_tokens: 100
-  });
-
-  const tugon = completion.choices[0].message.content.trim();
-
-  if (!tugon || tugon.toLowerCase().includes("walang mali")) {
-  return res.status(204).send();
-  }
-
-  res.type("text/plain").send(tugon);
-
-  } catch (error) {
-  console.error("Error:", error);
-  res.status(500).json({ error: error.message });
-  }
-  });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-console.log(`✅ Server tumatakbo sa http://localhost:${PORT}`);
+  console.log(`Filipino Grammar Checker running sa http://localhost:${PORT}`);
 });
