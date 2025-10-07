@@ -71,7 +71,6 @@ function tagalogLang(text) {
 }
 
 // 🧩 Endpoint: Suriin ang gramatika
-// 🧩 Endpoint: Suriin ang gramatika
 app.post("/suriin-gramar", async (req, res) => {
   try {
     let { pangungusap } = req.body;
@@ -85,18 +84,10 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.status(400).send("Bawal mag-English o ibang wika, Filipino lang ang tanggap.");
     }
 
-    // 🚫 Check kung may mura / bad words
-    const lowerText = pangungusap.toLowerCase();
-    const mayMura = badWords.some(word => {
-      const regex = new RegExp(`\\b${word.replace(/\*/g, ".*")}\\b`, "gi");
-      return regex.test(lowerText);
-    });
+    // ✳️ Censor bad words bago ipasa sa OpenAI
+    pangungusap = censorBadWords(pangungusap);
 
-    if (mayMura) {
-      return res.status(400).send("⚠️ Bawal gumamit ng malaswang o mapanirang salita.");
-    }
-
-    // ➤ Tawagin si OpenAI para suriin ang gramatika
+    // ➤ Tawagin si OpenAI
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -137,3 +128,7 @@ Mga Tagubilin:
   }
 });
 
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Server tumatakbo sa http://localhost:${PORT}`);
+});
