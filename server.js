@@ -17,11 +17,10 @@ const englishWords = fs.readFileSync("english_words.txt", "utf-8")
   .map(w => w.trim().toLowerCase())
   .filter(Boolean);
 
-const badWords = [
-  "tanga", "bobo", "gago", "ulol", "bwisit", "peste", "punyeta",
-  "putangina", "puta", "kantot", "tite", "burat", "libog",
-  "fuck", "shit", "bitch", "asshole", "motherfucker"
-];
+const badWords = fs.readFileSync("bad_words.txt", "utf-8")
+  .split("\n")
+  .map(w => w.trim().toLowerCase())
+  .filter(Boolean);
 
 function censorBadWords(text) {
   let censored = text;
