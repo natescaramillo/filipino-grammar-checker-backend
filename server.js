@@ -1,6 +1,7 @@
 import express from "express";
 import OpenAI from "openai";
 import dotenv from "dotenv";
+import franc from "franc";
 
 dotenv.config();
 
@@ -43,9 +44,12 @@ function mostlyFilipino(text) {
 }
 
 // Tukuyin kung may English word
+function isEnglish(text) {
+  return franc(text) === "eng";
+}
+
 function containsEnglish(text) {
-  const englishPattern = /\b(the|is|are|was|were|am|you|he|she|they|we|it|this|that|what|when|where|why|how|can|will|shall|do|did|does|yes|no|of|to|from|and|or|not|on|in|for)\b/i;
-  return englishPattern.test(text);
+  return isEnglish(text);
 }
 
 // Pangunahing endpoint
