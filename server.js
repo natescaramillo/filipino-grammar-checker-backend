@@ -88,13 +88,10 @@ Gabay sa pagsusuri:
 
 Format ng sagot:
 Kung mali:
-MALI: <*maling bahagi lang naka-asterisk*>
 TAMANG SAGOT: <tamang pangungusap, walang highlight>
 
 Kung tama:
-WALANG MALI
-
-Lahat ng sagot ay dapat nasa wikang Filipino lamang.`
+WALANG MALI`
         },
         { role: "user", content: pangungusap }
       ]
