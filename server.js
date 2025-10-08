@@ -31,14 +31,16 @@ function censorBadWords(text) {
 // Tukuyin kung Filipino ang pangungusap
 function mostlyFilipino(text) {
   const filipinoWords = [
-    "ako", "ikaw", "siya", "kami", "tayo", "sila", "ay", "ng", "sa", "ang", "mga",
-    "na", "ko", "mo", "si", "ni", "kay", "ito", "iyon", "doon", "dito", "nga",
-    "rin", "din", "pa", "ba", "lang", "nang", "para", "habang"
+    "ako", "ikaw", "siya", "kami", "tayo", "sila", "ay", "ng", "sa", "ang",
+    "mga", "na", "ko", "mo", "si", "ni", "kay", "ito", "iyon", "doon",
+    "dito", "nga", "rin", "din", "pa", "ba", "lang", "nang", "para", "habang"
   ];
+
   let count = 0;
   filipinoWords.forEach(w => {
     if (text.toLowerCase().includes(w)) count++;
   });
+
   return count >= 2;
 }
 
@@ -58,11 +60,11 @@ app.post("/suriin-gramar", async (req, res) => {
     }
 
     if (badWords.some(w => pangungusap.toLowerCase().includes(w))) {
-      return res.status(400).send("Bawal gumamit ng masasamang salita.");
+      return res.send("Bawal gumamit ng masasamang salita.");
     }
 
     if (containsEnglish(pangungusap) || !mostlyFilipino(pangungusap)) {
-      return res.status(400).send("Filipino lamang ang pinapayagan.");
+      return res.send("Filipino lamang ang pinapayagan.");
     }
 
     pangungusap = censorBadWords(pangungusap);
@@ -74,9 +76,11 @@ app.post("/suriin-gramar", async (req, res) => {
       messages: [
         {
           role: "system",
-          content: `Ikaw ay isang eksperto sa gramatika ng wikang Filipino. 
-Layunin: Suriin ang pangungusap batay sa wastong bahagi ng pananalita (pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.) 
-at kayarian ng pangungusap (payak, tambalan, hugnayan, langkapan).
+          content: `
+Ikaw ay isang eksperto sa gramatika ng wikang Filipino.
+
+Layunin:
+Suriin ang pangungusap batay sa wastong bahagi ng pananalita (pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.) at kayarian ng pangungusap (payak, tambalan, hugnayan, langkapan).
 
 Gabay sa pagsusuri:
 - Gamitin ang mga tuntunin ng bahagi ng pananalita at kayarian ng pangungusap upang matukoy kung tama o mali ang gramatika.
@@ -88,10 +92,14 @@ Gabay sa pagsusuri:
 
 Format ng sagot:
 Kung mali:
+MALI: <*maling bahagi lang naka-asterisk*>
 TAMANG SAGOT: <tamang pangungusap, walang highlight>
 
 Kung tama:
-WALANG MALI`
+WALANG MALI
+
+Lahat ng sagot ay dapat nasa wikang Filipino lamang.
+          `
         },
         { role: "user", content: pangungusap }
       ]
