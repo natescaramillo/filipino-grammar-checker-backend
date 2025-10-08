@@ -32,24 +32,28 @@ function censorBadWords(text) {
 // Tukuyin kung Filipino ang pangungusap
 function mostlyFilipino(text) {
   const filipinoWords = [
-    "ako", "ikaw", "siya", "kami", "tayo", "sila", "ay", "ng", "sa", "ang",
-    "mga", "na", "ko", "mo", "si", "ni", "kay", "ito", "iyon", "doon",
-    "dito", "nga", "rin", "din", "pa", "ba", "lang", "nang", "para", "habang"
+    "ako","ikaw","siya","kami","tayo","sila","ay","ng","sa","ang",
+    "mga","na","ko","mo","si","ni","kay","ito","iyon","doon",
+    "dito","nga","rin","din","pa","ba","lang","nang","para","habang"
   ];
+
   let count = 0;
   filipinoWords.forEach(w => {
-    if (text.toLowerCase().includes(w)) count++;
+    const regex = new RegExp(`\\b${w}\\b`, "i");
+    if (regex.test(text)) count++;
   });
   return count >= 2;
 }
 
-// Tukuyin kung may English word
-function isEnglish(text) {
-  return franc(text) === "eng";
+// Franc-based language detection
+function detectLanguage(text) {
+  return franc(text, { minLength: 3 });
 }
 
-function containsEnglish(text) {
-  return isEnglish(text);
+// Check kung may ibang language (hindi Filipino)
+function containsOtherLanguage(text) {
+  const lang = detectLanguage(text);
+  return lang !== "tgl"; // 'tgl' = Filipino
 }
 
 // Pangunahing endpoint
@@ -61,16 +65,20 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.status(400).send("Pakisulat muna ang pangungusap.");
     }
 
+    // Bawal ang bad words
     if (badWords.some(w => pangungusap.toLowerCase().includes(w))) {
       return res.send("Bawal gumamit ng masasamang salita.");
     }
-    
-    if (containsEnglish(pangungusap) || !mostlyFilipino(pangungusap)) {
+
+    // Check kung may ibang language o hindi mostly Filipino
+    if (containsOtherLanguage(pangungusap) || !mostlyFilipino(pangungusap)) {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
+    // Censor bad words (optional, just in case)
     pangungusap = censorBadWords(pangungusap);
 
+    // Request sa OpenAI
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.1,
@@ -82,12 +90,11 @@ app.post("/suriin-gramar", async (req, res) => {
 Ikaw ay isang eksperto sa gramatika ng wikang Filipino.
 
 Layunin:
-Suriin ang pangungusap batay sa wastong bahagi ng pananalita (pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.) at kayarian ng pangungusap (payak, tambalan, hugnayan, langkapan).
+Suriin ang pangungusap batay sa wastong bahagi ng pananalita at kayarian ng pangungusap.
 
 Gabay sa pagsusuri:
 - Gamitin ang mga tuntunin ng bahagi ng pananalita at kayarian ng pangungusap upang matukoy kung tama o mali ang gramatika.
 - Siguraduhing may tamang pantukoy, panaguri, at simuno.
-- Suriin ang wastong gamit ng pang-ukol, pang-ugnay, at pang-uri.
 - Huwag ilista o banggitin ang mga bahagi o kayarian sa output. Gamitin lamang ito bilang batayan.
 - I-highlight (gamitin ang asterisk) *LAMANG* ang maling bahagi ng pangungusap.
 - Ang tamang sagot ay dapat plain text, walang asterisk o formatting.
