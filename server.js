@@ -17,14 +17,12 @@ const englishWords = fs.readFileSync("english_words.txt", "utf-8")
   .map(w => w.trim().toLowerCase())
   .filter(Boolean);
 
-// Listahan ng masasamang salita
 const badWords = [
   "tanga", "bobo", "gago", "ulol", "bwisit", "peste", "punyeta",
   "putangina", "puta", "kantot", "tite", "burat", "libog",
   "fuck", "shit", "bitch", "asshole", "motherfucker"
 ];
 
-// Palitan ng ** ang masasamang salita
 function censorBadWords(text) {
   let censored = text;
   badWords.forEach(word => {
@@ -34,7 +32,6 @@ function censorBadWords(text) {
   return censored;
 }
 
-// Tukuyin kung Filipino ang pangungusap
 function mostlyFilipino(text) {
   const filipinoWords = [
     "ako", "ikaw", "siya", "kami", "tayo", "sila", "ay", "ng", "sa", "ang",
@@ -56,7 +53,6 @@ function containsEnglish(text) {
   return englishWords.some(word => new RegExp(`\\b${word}\\b`).test(lowerText));
 }
 
-// Pangunahing endpoint
 app.post("/suriin-gramar", async (req, res) => {
   try {
     let { pangungusap } = req.body;
