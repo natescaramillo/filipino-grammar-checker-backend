@@ -87,8 +87,6 @@ Gabay sa pagsusuri:
 - Ang tamang sagot ay dapat plain text, walang asterisk o formatting.
 
 Format ng sagot:
-Kung mali:
-MALI: <*maling bahagi lang naka-asterisk*>
 TAMANG SAGOT: <tamang pangungusap, walang highlight>
 
 Kung tama:
