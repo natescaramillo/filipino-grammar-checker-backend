@@ -58,11 +58,11 @@ app.post("/suriin-gramar", async (req, res) => {
     }
 
     if (badWords.some(w => pangungusap.toLowerCase().includes(w))) {
-      return res.status(400).send("Bawal gumamit ng masasamang salita.");
+      return res.send("Bawal gumamit ng masasamang salita.");
     }
-
+    
     if (containsEnglish(pangungusap) || !mostlyFilipino(pangungusap)) {
-      return res.status(400).send("Filipino lamang ang pinapayagan.");
+      return res.send("Filipino lamang ang pinapayagan.");
     }
 
     pangungusap = censorBadWords(pangungusap);
