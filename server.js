@@ -1,6 +1,7 @@
 import express from "express";
 import OpenAI from "openai";
 import dotenv from "dotenv";
+import fs from "fs";
 
 dotenv.config();
 
@@ -10,6 +11,11 @@ app.use(express.json());
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
+
+const englishWords = fs.readFileSync("english_words.txt", "utf-8")
+  .split("\n")
+  .map(w => w.trim().toLowerCase())
+  .filter(Boolean);
 
 // Listahan ng masasamang salita
 const badWords = [
@@ -46,8 +52,8 @@ function mostlyFilipino(text) {
 
 // Tukuyin kung may English word
 function containsEnglish(text) {
-  const englishPattern = /\b(the|is|are|was|were|am|you|he|she|they|we|it|this|that|what|when|where|why|how|can|will|shall|do|did|does|yes|no|of|to|from|and|or|not|on|in|for)\b/i;
-  return englishPattern.test(text);
+  const lowerText = text.toLowerCase();
+  return englishWords.some(word => new RegExp(`\\b${word}\\b`).test(lowerText));
 }
 
 // Pangunahing endpoint
