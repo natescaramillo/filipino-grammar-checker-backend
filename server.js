@@ -78,34 +78,32 @@ function isMostlyFilipino(text) {
   return filipinoCount >= 1 && filipinoCount >= words.length * 0.4;
 }
 
-// 🔹 Correct hyphens (-) ayon sa KWF
 function correctHyphens(sentence) {
   const affixes = ["tag", "napaka", "pinaka", "pang", "pa", "mag", "ma", "mak"];
 
-  return sentence.replace(/\b(\w+)\b/g, (word) => {
-    // Preserve capitalization
-    const original = word;
-    const lower = word.toLowerCase();
+  return sentence.replace(/\b[\w-]+\b/g, (word) => {
+    let original = word;
+    let lower = word.toLowerCase();
 
     for (let affix of affixes) {
       if (lower.startsWith(affix)) {
-        const rest = original.slice(affix.length);
+        let rest = original.slice(affix.length).replace(/^-/, ""); // tanggalin existing dash
 
-        if (!rest) return original; // solo affix, no change
+        if (!rest) return original; // solo affix, walang change
 
         const firstChar = rest[0];
         if ("aeiouAEIOU".includes(firstChar)) {
-          // Patinig → dapat may dash
-          return affix + "-" + rest;
+          return affix + "-" + rest; // patinig → may dash
         } else {
-          // Katinig → walang dash
-          return affix + rest.replace(/^-/, ""); // tanggalin existing dash
+          return affix + rest; // katinig → walang dash
         }
       }
     }
-    return original; // wala sa affix
+
+    return original;
   });
 }
+
 
 
 
