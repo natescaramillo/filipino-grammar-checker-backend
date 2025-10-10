@@ -139,7 +139,7 @@ Saklaw ng pagsusuri:
 7. **Simuno at panaguri** – tiyakin na kumpleto ang pangungusap.
 8. **Tamang pagkakasunod ng mga salita** – ayusin kung may baluktot o di-natural na pagkakasunod.
 9. **Wastong paggamit ng malalaking titik** sa simula ng pangungusap at sa pangngalang pantangi.
-10. **Lohika at saysay ng pangungusap** – kung ang pangungusap ay walang malinaw na kahulugan, paulit-ulit, o walang koneksyon ang mga salita, sagutin lamang ng:  “Di maayos ang pangungusap mo.”
+10. **Lohika at saysay ng pangungusap** – kung ang pangungusap ay walang malinaw na kahulugan, paulit-ulit, o walang koneksyon ang mga salita.
 11. Kung may mali, ibalik lamang ang format sa ibaba.
 12. Huwag magbigay ng anumang paliwanag o detalye.
 
