@@ -84,19 +84,24 @@ function isNonsenseOrRepetitive(text) {
   const lower = text.toLowerCase().replace(/[^\w\sñ]/g, "");
   const words = lower.split(/\s+/).filter(Boolean);
 
-  // paulit-ulit ang parehong salita o parirala
+  // Paulit-ulit na eksaktong parirala (hal. "tagumpay at sipag tagumpay at sipag")
+  const phraseRepeat = /(\b[\wñ\s]+\b)\1/i;
+  if (phraseRepeat.test(lower)) return true;
+
+  // Paulit-ulit na parehong salita o parirala
   const repeatedPattern = /(ang|si|ng|ay|ako|ikaw|ko|mga)\s+\1/i;
   if (repeatedPattern.test(lower)) return true;
 
-  // sobrang haba pero pare-pareho ang laman
+  // Sobrang dami ng inuulit na salita
   const uniqueWords = new Set(words);
   if (uniqueWords.size < words.length * 0.5) return true;
 
-  // wala o kulang sa simuno-panaguri
+  // Kulang sa simuno o panaguri
   if (words.length < 3) return true;
 
   return false;
 }
+
 
 // 🔹 Main endpoint
 app.post("/suriin-gramar", async (req, res) => {
@@ -108,7 +113,7 @@ app.post("/suriin-gramar", async (req, res) => {
     }
 
     if (badWords.some(w => pangungusap.toLowerCase().includes(w))) {
-      return res.send("Bawal gumamit ng masasamang salita.");
+      return res.send("Bawal gumamit ng masasamang salita o salitang balbal.");
     }
 
     // 🔹 Check if may halatang English (pero mas lenient)
