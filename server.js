@@ -187,7 +187,7 @@ Saklaw ng pagsusuri:
    - Walang gitling kapag ang unlapi ay sinusundan ng katinig. (hal. napakabait, taglamig)
    - May gitling kapag ang unlapi ay sinusundan ng patinig. (hal. napaka-init, tag-init)
    - Mali kung may sobrang o kulang na gitling. (hal. napaka-bait, tag lamig)
-6. Bantas at baybay – wastong gamit ng tuldok, kuwit, tandang pananong, at tandang padamdam.
+6. Bantas at baybay – wastong gamit ng tuldok, kuwit, tandang pananong, at tandang padamdam. (Dapat sabihin sa MALI kung ano ang kulang o mali sa pangungusap)
 7. Simuno at panaguri – tiyakin na kumpleto ang pangungusap.
 8. Tamang pagkakasunod ng salita.
 9. Wastong paggamit ng malalaking titik.
