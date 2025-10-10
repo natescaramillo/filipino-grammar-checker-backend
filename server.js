@@ -47,15 +47,21 @@ const filipinoAffixes = [
   "pag", "tag", "napaka", "pinaka", "mag", "ma", "mak", "pa", "pang", "ka"
 ];
 
-// 🔹 Check kung may English words
 function containsEnglish(text) {
   const words = text
     .toLowerCase()
-    .replace(/[^a-zA-ZñÑ\s-]/g, "")
+    .replace(/[^a-zñ\s-]/g, "") // remove non-letters
     .split(/\s+/)
     .filter(Boolean);
-  return words.some(w => englishWords.includes(w));
+
+  // exclude Filipino connectors like "at", "sa", "ang" etc.
+  const filipinoCommonWords = ["at", "ng", "nang", "sa", "ang", "mga", "ay", "ko", "mo", "si", "ni", "kay"];
+
+  return words.some(
+    w => englishWords.includes(w) && !filipinoCommonWords.includes(w)
+  );
 }
+
 
 // 🔹 Improved Filipino detection
 function isMostlyFilipino(text) {
