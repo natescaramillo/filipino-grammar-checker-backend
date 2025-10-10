@@ -38,7 +38,8 @@ const filipinoWords = [
   "ako", "ikaw", "siya", "kami", "tayo", "sila", "ay", "ng", "nang", "sa", "ang",
   "mga", "na", "ko", "mo", "si", "ni", "kay", "ito", "iyon", "doon", "dito",
   "nga", "rin", "din", "pa", "ba", "lang", "para", "habang", "wala", "meron",
-  "may", "sobrang", "napaka", "pinaka", "tag", "pag", "mag", "mak", "ma", "pang"
+  "may", "sobrang", "napaka", "pinaka", "tag", "pag", "mag", "mak", "ma", "pang",
+  "at", "ngunit", "subalit", "dahil", "kung", "kapag", "sapagkat", "upang"
 ];
 
 // 🔹 Affixes para mas flexible
@@ -106,11 +107,11 @@ app.post("/suriin-gramar", async (req, res) => {
 
     pangungusap = censorBadWords(pangungusap);
 
-    // 🔹 Send sa GPT for grammar + gitling check
+    // 🔹 Send sa GPT for grammar + ortograpiya check
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
       temperature: 0.1,
-      max_tokens: 150,
+      max_tokens: 250,
       messages: [
         {
           role: "system",
@@ -118,25 +119,35 @@ app.post("/suriin-gramar", async (req, res) => {
 Ikaw ay isang eksperto sa gramatika **at ortograpiya** ng wikang Filipino.
 
 Layunin:
-Suriin ang pangungusap batay sa wastong bahagi ng pananalita (pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.), kayarian ng pangungusap (payak, tambalan, hugnayan, langkapan), **at wastong baybay o paggamit ng mga gitling (-)** ayon sa mga alituntunin ng Ortograpiyang Filipino ng Komisyon sa Wikang Filipino (KWF).
+Suriin ang pangungusap batay sa lahat ng tuntunin sa **gramatika, ortograpiya, at bantas** ng wikang Filipino ayon sa Komisyon sa Wikang Filipino (KWF). 
 
-Gabay sa pagsusuri:
-- Gamitin ang mga tuntunin ng bahagi ng pananalita at kayarian ng pangungusap upang matukoy kung tama o mali ang gramatika.
-- Suriin ang wastong gamit ng pang-ukol, pang-ugnay, pang-uri, at pangngalan.
-- **Suriin din ang tamang baybay at paggamit ng mga gitling (-):**
-  - Walang gitling kapag ang unlapi ay sinusundan ng katinig.  (hal. *napakabait*, *taglamig*, *pinakamaganda*)
-  - May gitling kapag ang unlapi ay sinusundan ng patinig.  (hal. *napaka-init*, *tag-init*, *pinaka-isa*)
-  - Ituring na **MALI** ang mga salitang may maling paggamit ng gitling (hal. *napaka-bait*, *tag-lamig*).
-- I-highlight lamang ang mga maling bahagi gamit ang *asterisk*.
-- Ang sagot ay dapat nasa eksaktong format sa ibaba.
+Saklaw ng pagsusuri:
+1. **Bahagi ng pananalita** – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
+2. **Kayarian ng pangungusap** – payak, tambalan, hugnayan, o langkapan.
+3. **Ortograpiya** – wastong baybay, paggamit ng gitling (-), at wastong kapitalisasyon.
+4. **Gamit ng mga salitang magkatulad**:
+   - *ng* vs *nang* (hal. “Tumakbo **nang** mabilis.”)
+   - *may* vs *mayroon* (hal. “**Mayroon** siyang pera.”)
+   - *rin* vs *din* (batay sa tunog)
+   - *raw* vs *daw* (batay sa tunog)
+5. **Gitling (-)** ayon sa KWF:
+   - Walang gitling kapag ang unlapi ay sinusundan ng katinig.  (hal. *napakabait*, *taglamig*, *pinakamaganda*)
+   - May gitling kapag ang unlapi ay sinusundan ng patinig.  (hal. *napaka-init*, *tag-init*, *pinaka-isa*)
+   - Mali ang may maling gitling (hal. *napaka-bait*, *tag-lamig*).
+6. **Bantas at baybay** – wastong gamit ng tuldok, kuwit, tandang pananong, at tandang padamdam.
+7. **Simuno at panaguri** – tiyakin na kumpleto ang pangungusap.
+8. **Tamang pagkakasunod ng mga salita** – ayusin kung may baluktot o di-natural na pagkakasunod.
+9. **Wastong paggamit ng malalaking titik** sa simula ng pangungusap at sa pangngalang pantangi.
 
 Format ng sagot:
 Kung mali:
-MALI: <lahat ng maling salita lang, bawat isa ay naka-asterisk at pinaghihiwalay ng kuwit>
-TAMANG SAGOT: <tamang pangungusap, walang highlight>
+MALI: <lahat ng maling salita o bahagi, bawat isa ay naka-asterisk>
+TAMANG SAGOT: <tamang pangungusap, walang asterisk>
 
 Kung tama:
 WALANG MALI
+
+Lahat ng sagot ay dapat nasa wikang Filipino lamang.
 `
         },
         { role: "user", content: pangungusap }
