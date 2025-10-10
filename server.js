@@ -12,7 +12,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// Basahin ang mga listahan
+// 🔹 Basahin ang mga listahan
 const englishWords = fs.readFileSync("english_words.txt", "utf-8")
   .split("\n")
   .map(w => w.trim().toLowerCase())
@@ -33,7 +33,7 @@ function censorBadWords(text) {
   return censored;
 }
 
-// 🔹 Filipino core words at affixes (pinalawak)
+// 🔹 Filipino core words at affixes
 const filipinoWords = [
   "ako", "ikaw", "siya", "kami", "tayo", "sila", "ay", "ng", "nang", "sa", "ang",
   "mga", "na", "ko", "mo", "si", "ni", "kay", "ito", "iyon", "doon", "dito",
@@ -42,7 +42,6 @@ const filipinoWords = [
   "at", "ngunit", "subalit", "dahil", "kung", "kapag", "sapagkat", "upang"
 ];
 
-// 🔹 Affixes para mas flexible
 const filipinoAffixes = [
   "pag", "tag", "napaka", "pinaka", "mag", "ma", "mak", "pa", "pang", "ka"
 ];
@@ -76,8 +75,30 @@ function isMostlyFilipino(text) {
     }
   }
 
-  // ✅ At least 1 Filipino-like word + not majority English
   return filipinoCount >= 1 && filipinoCount >= words.length * 0.4;
+}
+
+// 🔹 Correct hyphens (-) ayon sa KWF
+function correctHyphens(sentence) {
+  const affixes = ["napaka", "pinaka", "tag", "pang", "pa", "mag", "ma", "mak"];
+  let words = sentence.split(/\b/);
+
+  words = words.map(word => {
+    for (let affix of affixes) {
+      const regexVowel = new RegExp(`^(${affix})([aeiouAEIOU].*)$`);
+      if (regexVowel.test(word) && !word.includes("-")) {
+        return word.replace(regexVowel, `$1-$2`);
+      }
+
+      const regexConsonant = new RegExp(`^(${affix})([^aeiouAEIOU-].*)$`);
+      if (regexConsonant.test(word) && word.includes("-")) {
+        return word.replace(/-/g, "");
+      }
+    }
+    return word;
+  });
+
+  return words.join("");
 }
 
 // 🔹 Main endpoint
@@ -93,12 +114,10 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.send("Bawal gumamit ng masasamang salita.");
     }
 
-    // 🔹 Check if may halatang English (pero mas lenient)
     if (containsEnglish(pangungusap) && !isMostlyFilipino(pangungusap)) {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
-    // 🔹 Rule: capital letter sa unang letra
     const unangLetra = pangungusap.trim().charAt(0);
     if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
       const corrected = unangLetra.toUpperCase() + pangungusap.trim().slice(1);
@@ -106,61 +125,54 @@ app.post("/suriin-gramar", async (req, res) => {
     }
 
     pangungusap = censorBadWords(pangungusap);
+    pangungusap = correctHyphens(pangungusap);
 
-   // 🔹 Send sa GPT for grammar + ortograpiya check
-const completion = await openai.chat.completions.create({
-  model: "gpt-4.1-mini",
-  temperature: 0.1,
-  max_tokens: 250,
-  messages: [
-    {
-      role: "system",
-      content: `
-        Ikaw ay isang **eksperto sa gramatika, ortograpiya, at bantas** ng wikang Filipino ayon sa pamantayan ng Komisyon sa Wikang Filipino (KWF).
-        
-        🎯 Layunin:
-        Suriin at ayusin ang anumang kamalian sa pangungusap batay sa wastong tuntunin ng wikang Filipino — kabilang ang gramatika, baybay, bantas, at kapitalisasyon. Lahat ng aspeto ay pantay na mahalaga.
-        
-        📚 Saklaw ng pagsusuri:
-        1. **Bahagi ng pananalita** – wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, at iba pa.  
-        2. **Kayarian ng pangungusap** – tukuyin kung payak, tambalan, hugnayan, o langkapan; tiyakin na may simuno at panaguri.  
-        3. **Ortograpiya at baybay** – wastong ispeling, paggamit ng gitling (-), tuldik, at kapitalisasyon.  
-        4. **Paggamit ng magkatulad na salita** – tiyakin ang tamang paggamit ng:
-           - *ng* vs *nang*  
-           - *may* vs *mayroon*  
-           - *rin* vs *din*  
-           - *raw* vs *daw*  
-        5. **Gitling (-)** – sundin ang patakaran ng KWF:
-           - Walang gitling kapag ang unlapi ay sinusundan ng katinig. (hal. *napakabait*, *taglamig*)  
-           - May gitling kapag ang unlapi ay sinusundan ng patinig. (hal. *napaka-init*, *tag-init*)  
-           - Mali kung may sobrang o kulang na gitling. (hal. *napaka-bait*, *tag lamig*).  
-        6. **Bantas** – wastong paggamit ng tuldok, kuwit, tandang pananong, tandang padamdam, gitling, at panipi.  
-        7. **Pagkakasunod ng mga salita** – tiyakin ang natural na daloy ng ideya sa pangungusap.  
-        8. **Redundancy o pag-uulit ng salita** – tukuyin kung may hindi kinakailangang pag-uulit o paggamit ng parehong salita (hal. *“dahil sa ulan dahil malakas”* → isa lang dapat).  
-        9. **Kawastuhan ng ideya** – tiyakin na ang pangungusap ay malinaw, kumpleto, at may lohikal na ugnayan ng mga bahagi.  
-        10. **Paggamit ng malalaking titik** – sa simula ng pangungusap at sa mga pangngalang pantangi.
-        
-        💡 Panuntunan sa pagsagot:
-        - Huwag magbigay ng paliwanag o karagdagang detalye.  
-        - Ibigay lamang ang resulta ayon sa format sa ibaba.  
-        - Lahat ng sagot ay nasa wikang Filipino lamang.
-        
-        📄 **Format ng sagot:**
-        Kung may mali:
-        MALI: <lahat ng maling salita o bahagi, bawat isa ay naka-asterisk>
-        TAMANG SAGOT: <tamang pangungusap, walang asterisk>
-        
-        Kung tama:
-        WALANG MALI
-`
-    },
-    { role: "user", content: pangungusap }
-  ]
-});
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4.1-mini",
+      temperature: 0.1,
+      max_tokens: 250,
+      messages: [
+        {
+          role: "system",
+          content: `
+Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino.
 
+Saklaw ng pagsusuri:
+1. Bahagi ng pananalita – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
+2. Kayarian ng pangungusap – payak, tambalan, hugnayan, o langkapan.
+3. Ortograpiya – wastong baybay, paggamit ng gitling (-), at wastong kapitalisasyon.
+4. Gamit ng mga salitang magkatulad:
+   - ng vs nang
+   - may vs mayroon
+   - rin vs din
+   - raw vs daw
+5. **Gitling (-)** – sundin ang patakaran ng KWF:
+   - Walang gitling kapag ang unlapi ay sinusundan ng katinig. (hal. napakabait, taglamig)
+   - May gitling kapag ang unlapi ay sinusundan ng patinig. (hal. napaka-init, tag-init)
+   - Mali kung may sobrang o kulang na gitling. (hal. napaka-bait, tag lamig)
+6. Bantas at baybay – wastong gamit ng tuldok, kuwit, tandang pananong, at tandang padamdam.
+7. Simuno at panaguri – tiyakin na kumpleto ang pangungusap.
+8. Tamang pagkakasunod ng salita.
+9. Wastong paggamit ng malalaking titik.
+
+Format ng sagot:
+Kung mali:
+MALI: <lahat ng maling salita o bahagi, bawat isa ay naka-asterisk>
+TAMANG SAGOT: <tamang pangungusap, walang asterisk>
+
+Kung tama:
+WALANG MALI
+
+Lahat ng sagot ay nasa wikang Filipino lamang.
+          `
+        },
+        { role: "user", content: pangungusap }
+      ]
+    });
 
     const output = completion.choices[0].message.content.trim();
     res.type("text/plain").send(output);
+
   } catch (err) {
     console.error("Error:", err);
     res.status(500).json({ error: err.message });
