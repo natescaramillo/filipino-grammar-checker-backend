@@ -47,21 +47,15 @@ const filipinoAffixes = [
   "pag", "tag", "napaka", "pinaka", "mag", "ma", "mak", "pa", "pang", "ka"
 ];
 
+// 🔹 Check kung may English words
 function containsEnglish(text) {
   const words = text
     .toLowerCase()
-    .replace(/[^a-zñ\s-]/g, "") // remove non-letters
+    .replace(/[^a-zA-ZñÑ\s-]/g, "")
     .split(/\s+/)
     .filter(Boolean);
-
-  // exclude Filipino connectors like "at", "sa", "ang" etc.
-  const filipinoCommonWords = ["at", "ng", "nang", "sa", "ang", "mga", "ay", "ko", "mo", "si", "ni", "kay"];
-
-  return words.some(
-    w => englishWords.includes(w) && !filipinoCommonWords.includes(w)
-  );
+  return words.some(w => englishWords.includes(w));
 }
-
 
 // 🔹 Improved Filipino detection
 function isMostlyFilipino(text) {
@@ -85,29 +79,6 @@ function isMostlyFilipino(text) {
   // ✅ At least 1 Filipino-like word + not majority English
   return filipinoCount >= 1 && filipinoCount >= words.length * 0.4;
 }
-// 🔹 Detect nonsense o paulit-ulit na pattern
-function isNonsenseOrRepetitive(text) {
-  const lower = text.toLowerCase().replace(/[^\w\sñ]/g, "");
-  const words = lower.split(/\s+/).filter(Boolean);
-
-  // Paulit-ulit na eksaktong parirala (hal. "tagumpay at sipag tagumpay at sipag")
-  const phraseRepeat = /(\b[\wñ\s]+\b)\1/i;
-  if (phraseRepeat.test(lower)) return true;
-
-  // Paulit-ulit na parehong salita o parirala
-  const repeatedPattern = /(ang|si|ng|ay|ako|ikaw|ko|mga)\s+\1/i;
-  if (repeatedPattern.test(lower)) return true;
-
-  // Sobrang dami ng inuulit na salita
-  const uniqueWords = new Set(words);
-  if (uniqueWords.size < words.length * 0.5) return true;
-
-  // Kulang sa simuno o panaguri
-  if (words.length < 3) return true;
-
-  return false;
-}
-
 
 // 🔹 Main endpoint
 app.post("/suriin-gramar", async (req, res) => {
@@ -119,20 +90,12 @@ app.post("/suriin-gramar", async (req, res) => {
     }
 
     if (badWords.some(w => pangungusap.toLowerCase().includes(w))) {
-      return res.send("Bawal gumamit ng masasamang salita o salitang balbal.");
+      return res.send("Bawal gumamit ng masasamang salita o mga balbal na salita.");
     }
 
     // 🔹 Check if may halatang English (pero mas lenient)
-    const hasEnglish = containsEnglish(pangungusap);
-const mostlyFilipino = isMostlyFilipino(pangungusap);
-
-if (hasEnglish && !mostlyFilipino) {
-  return res.send("Filipino lamang ang pinapayagan.");
-}
-
-        // 🔹 Check nonsense or repetitive
-    if (isNonsenseOrRepetitive(pangungusap)) {
-      return res.send("Hindi maayos ang pangungusap mo.");
+    if (containsEnglish(pangungusap) && !isMostlyFilipino(pangungusap)) {
+      return res.send("Filipino lamang ang pinapayagan.");
     }
 
     // 🔹 Rule: capital letter sa unang letra
@@ -176,7 +139,7 @@ Saklaw ng pagsusuri:
 7. **Simuno at panaguri** – tiyakin na kumpleto ang pangungusap.
 8. **Tamang pagkakasunod ng mga salita** – ayusin kung may baluktot o di-natural na pagkakasunod.
 9. **Wastong paggamit ng malalaking titik** sa simula ng pangungusap at sa pangngalang pantangi.
-10. **Lohika at saysay ng pangungusap** – kung ang pangungusap ay walang malinaw na kahulugan, paulit-ulit, o walang koneksyon ang mga salita.
+10. **Lohika at saysay ng pangungusap** – kung ang pangungusap ay walang malinaw na kahulugan, paulit-ulit, o walang koneksyon ang mga salita, sagutin lamang ng:  “Di maayos ang pangungusap mo.”
 11. Kung may mali, ibalik lamang ang format sa ibaba.
 12. Huwag magbigay ng anumang paliwanag o detalye.
 
@@ -206,4 +169,5 @@ Lahat ng sagot ay dapat nasa wikang Filipino lamang.
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Filipino Grammar Checker running sa http://localhost:${PORT}`);
-});
+}); paayos dapat consistent sya dapat madetect nya yung may di professional na sentence Walang malinaw na ugnayan ng mga salita.
+   - Nonsensical o paulit-ulit na pahayag 
