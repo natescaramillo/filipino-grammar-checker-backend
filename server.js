@@ -78,29 +78,60 @@ function isMostlyFilipino(text) {
   return filipinoCount >= 1 && filipinoCount >= words.length * 0.4;
 }
 
+// 🔹 Word lists per affix (vowel → may dash, consonant → walang dash)
+const affixExamples = {
+  tag: {
+    vowel: ["tag-init","tag-ulan","tag-aliw","tag-abot","tag-ibig","tag-alis","tag-angat","tag-apat","tag-isa","tag-ahon"],
+    consonant: ["taglamig","tagtuyot","tagumpay","tagapangalaga","tagapamahala","tagapag-aral","tagapagturo","tagapaghatid","tagapangulo","tagapagsalita"]
+  },
+  napaka: {
+    vowel: ["napaka-init","napaka-aliw","napaka-espesyal","napaka-inaasahan","napaka-abot","napaka-alaala","napaka-akas","napaka-abot-kamay"],
+    consonant: ["napakatahimik","napakabait","napakadakila","napakabilis","napakalakas","napakaganda","napakalinaw","napakatalino"]
+  },
+  pinaka: {
+    vowel: ["pinaka-isa","pinaka-espesyal","pinaka-abot","pinaka-aliw","pinaka-alala","pinaka-aani","pinaka-alis","pinaka-ahon","pinaka-apat"],
+    consonant: ["pinakamaganda","pinakadakila","pinakamasaya","pinakamatatag","pinakalakas","pinakalinaw","pinakatino","pinakatalino","pinakamabilis","pinakatalino"]
+  },
+  pang: {
+    vowel: ["pang-itaas","pang-ibaba","pang-aliw","pang-abot","pang-umaga","pang-alis","pang-angat","pang-aasa","pang-anim"],
+    consonant: ["pangwakas","pangarap","pangkat","pangulo","pang-ukol","pang-edukasyon","pangyayari","panginoon","panghuli","pangulo"]
+  },
+  pa: {
+    vowel: ["pa-ahon","pa-ilalim","pa-abot","pa-akyat","pa-alis","pa-ibig","pa-amin"],
+    consonant: ["paalam","pamasko","paminsan","pamahalaan","paminsang","panalo","pakaliwa","pamangkin","papasok","patinig"]
+  },
+  mag: {
+    vowel: ["mag-ayos","mag-ingat","mag-abot","mag-aral","mag-alala","mag-ani","mag-alis","mag-abang","mag-ahon","mag-apoy"],
+    consonant: ["maganda","magluto","maglakad","magturo","magtanim","maglaro","maghugas","maglaba","mag-isa","magtrabaho"]
+  },
+  ma: {
+    vowel: ["ma-aral","ma-abot","ma-alis","ma-ahon","ma-aliw","ma-alala","ma-ani","ma-abang","ma-apoy","ma-alis"],
+    consonant: ["maayos","makata","maaliwalas","magaling","malakas","matalino","maingat","mabait","masaya","matibay"]
+  },
+};
+
+// 🔹 Updated correctHyphens function
 function correctHyphens(sentence) {
-  const affixes = ["tag", "napaka", "pinaka", "pang", "pa", "mag", "ma", "mak"];
-
   return sentence.replace(/\b[\w-]+\b/g, (word) => {
-    let original = word;
-    let lower = word.toLowerCase();
+    const lower = word.toLowerCase();
 
-    for (let affix of affixes) {
+    for (let affix in affixExamples) {
       if (lower.startsWith(affix)) {
-        let rest = original.slice(affix.length).replace(/^-/, ""); // tanggalin existing dash
+        const rest = lower.slice(affix.length).replace(/^-/, ""); // remove existing dash
+        if (!rest) return word;
 
-        if (!rest) return original; // solo affix, walang change
-
-        const firstChar = rest[0];
-        if ("aeiouAEIOU".includes(firstChar)) {
-          return affix + "-" + rest; // patinig → may dash
+        if (affixExamples[affix].vowel.includes(affix + "-" + rest)) {
+          return affix + "-" + rest; // vowel → dash
+        } else if (affixExamples[affix].consonant.includes(affix + rest)) {
+          return affix + rest; // consonant → no dash
         } else {
-          return affix + rest; // katinig → walang dash
+          // default rule if not listed
+          return "aeiou".includes(rest[0]) ? affix + "-" + rest : affix + rest;
         }
       }
     }
 
-    return original;
+    return word;
   });
 }
 
