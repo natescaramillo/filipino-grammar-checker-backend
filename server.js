@@ -123,9 +123,13 @@ app.post("/suriin-gramar", async (req, res) => {
     }
 
     // 🔹 Check if may halatang English (pero mas lenient)
-    if (containsEnglish(pangungusap) && !isMostlyFilipino(pangungusap)) {
-      return res.send("Filipino lamang ang pinapayagan.");
-    }
+    const hasEnglish = containsEnglish(pangungusap);
+const mostlyFilipino = isMostlyFilipino(pangungusap);
+
+if (hasEnglish && !mostlyFilipino) {
+  return res.send("Filipino lamang ang pinapayagan.");
+}
+
         // 🔹 Check nonsense or repetitive
     if (isNonsenseOrRepetitive(pangungusap)) {
       return res.send("Hindi maayos ang pangungusap mo.");
