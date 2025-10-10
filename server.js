@@ -80,25 +80,19 @@ function isMostlyFilipino(text) {
 
 // 🔹 Correct hyphens (-) ayon sa KWF
 function correctHyphens(sentence) {
-  const affixes = ["napaka", "pinaka", "tag", "pang", "pa", "mag", "ma", "mak"];
-  let words = sentence.split(/\b/);
+  const affixes = ["tag", "napaka", "pinaka", "pang", "pa", "mag", "ma", "mak"];
+  
+  for (let affix of affixes) {
+    // 1️⃣ Patinig pagkatapos ng affix → dapat may gitling
+    const vowelRegex = new RegExp(`\\b${affix}([aeiouAEIOU]\\w*)\\b`, "g");
+    sentence = sentence.replace(vowelRegex, `${affix}-$1`);
 
-  words = words.map(word => {
-    for (let affix of affixes) {
-      const regexVowel = new RegExp(`^(${affix})([aeiouAEIOU].*)$`);
-      if (regexVowel.test(word) && !word.includes("-")) {
-        return word.replace(regexVowel, `$1-$2`);
-      }
+    // 2️⃣ Katinig pagkatapos ng affix → walang gitling
+    const consonantRegex = new RegExp(`\\b${affix}-?([^aeiouAEIOU\\s]\\w*)\\b`, "g");
+    sentence = sentence.replace(consonantRegex, `${affix}$1`);
+  }
 
-      const regexConsonant = new RegExp(`^(${affix})([^aeiouAEIOU-].*)$`);
-      if (regexConsonant.test(word) && word.includes("-")) {
-        return word.replace(/-/g, "");
-      }
-    }
-    return word;
-  });
-
-  return words.join("");
+  return sentence;
 }
 
 // 🔹 Main endpoint
