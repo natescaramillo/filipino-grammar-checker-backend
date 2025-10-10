@@ -12,31 +12,28 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// 🔹 Load lists
+// 🔹 Word Lists
 const englishWords = fs.readFileSync("english_words.txt", "utf-8")
-  .split("\n")
-  .map(w => w.trim().toLowerCase())
-  .filter(Boolean);
+  .split("\n").map(w => w.trim().toLowerCase()).filter(Boolean);
 
 const badWords = fs.readFileSync("bad_words.txt", "utf-8")
-  .split("\n")
-  .map(w => w.trim().toLowerCase())
-  .filter(Boolean);
+  .split("\n").map(w => w.trim().toLowerCase()).filter(Boolean);
 
-// 🔹 Filipino core words and affixes
+// 🔹 Filipino Core Words & Affixes
 const filipinoWords = [
-  "ako", "ikaw", "siya", "kami", "tayo", "sila", "ay", "ng", "nang", "sa", "ang",
-  "mga", "na", "ko", "mo", "si", "ni", "kay", "ito", "iyon", "doon", "dito",
-  "nga", "rin", "din", "pa", "ba", "lang", "para", "habang", "wala", "meron",
-  "may", "sobrang", "napaka", "pinaka", "tag", "pag", "mag", "mak", "ma", "pang",
-  "at", "ngunit", "subalit", "dahil", "kung", "kapag", "sapagkat", "upang"
+  "ako","ikaw","siya","kami","tayo","sila","ay","ng","nang","sa","ang","mga","na",
+  "ko","mo","si","ni","kay","ito","iyan","iyon","doon","dito","nga","rin","din",
+  "pa","ba","lang","para","habang","wala","meron","may","sobrang","napaka","pinaka",
+  "tag","pag","mag","mak","ma","pang","at","ngunit","subalit","dahil","kung","kapag",
+  "sapagkat","upang","kasi","pero","kahit","lalo","maging","gayundin","maliban","o",
+  "kung kaya","habang","kahit"
 ];
 
 const filipinoAffixes = [
-  "pag", "tag", "napaka", "pinaka", "mag", "ma", "mak", "pa", "pang", "ka"
+  "pag","tag","napaka","pinaka","mag","ma","mak","pa","pang","ka","ika","ipin","pin"
 ];
 
-// 🔹 Basic word filters
+// 🔹 Helper functions
 function censorBadWords(text) {
   let censored = text;
   badWords.forEach(word => {
@@ -47,120 +44,102 @@ function censorBadWords(text) {
 }
 
 function containsEnglish(text) {
-  const words = text
-    .toLowerCase()
-    .replace(/[^a-zA-ZñÑ\s-]/g, "")
-    .split(/\s+/)
-    .filter(Boolean);
+  const words = text.toLowerCase().replace(/[^a-zA-ZñÑ\s-]/g, "").split(/\s+/);
   return words.some(w => englishWords.includes(w));
 }
 
 function isMostlyFilipino(text) {
-  const words = text
-    .toLowerCase()
-    .replace(/[^a-zA-ZñÑ\s-]/g, "")
-    .split(/\s+/)
-    .filter(Boolean);
-
+  const words = text.toLowerCase().replace(/[^a-zA-ZñÑ\s-]/g, "").split(/\s+/);
   let filipinoCount = 0;
   for (const word of words) {
-    if (
-      filipinoWords.includes(word) ||
-      filipinoAffixes.some(affix => word.startsWith(affix))
-    ) {
-      filipinoCount++;
-    }
+    if (filipinoWords.includes(word) || filipinoAffixes.some(a => word.startsWith(a))) filipinoCount++;
   }
   return filipinoCount >= 1 && filipinoCount >= words.length * 0.4;
 }
 
-// 🔹 Main endpoint
+// 🔹 Main Route
 app.post("/suriin-gramar", async (req, res) => {
   try {
     let { pangungusap } = req.body;
-
-    if (!pangungusap || pangungusap.trim() === "") {
+    if (!pangungusap || pangungusap.trim() === "")
       return res.status(400).send("Pakisulat muna ang pangungusap.");
-    }
 
-    // Normalize text
     pangungusap = pangungusap
-      .replace(/\s+/g, " ") // remove double spaces
-      .replace(/([a-z])([A-Z])/g, "$1 $2") // spacing between letters if needed
-      .replace(/-+/g, "-") // normalize multiple hyphens
+      .replace(/\s+/g, " ")
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/-+/g, "-")
       .trim();
 
-    // Censor bad words
     pangungusap = censorBadWords(pangungusap);
 
-    // Reject English sentences unless mostly Filipino
-    if (containsEnglish(pangungusap) && !isMostlyFilipino(pangungusap)) {
+    if (containsEnglish(pangungusap) && !isMostlyFilipino(pangungusap))
       return res.send("Filipino lamang ang pinapayagan.");
-    }
 
-    // Check for repeated words (e.g. “mali mali”)
     const repeatMatch = pangungusap.match(/\b(\w+)\s+\1\b/i);
-    if (repeatMatch) {
-      return res.send(
-        `MALI: *${repeatMatch[1]} ${repeatMatch[1]}*\nTAMANG SAGOT: alisin ang pag-uulit ng salita.`
-      );
+    if (repeatMatch)
+      return res.send(`MALI: *${repeatMatch[1]} ${repeatMatch[1]}*\nTAMANG SAGOT: Alisin ang pag-uulit ng salita.`);
+
+    const firstChar = pangungusap.charAt(0);
+    if (firstChar === firstChar.toLowerCase() && firstChar.match(/[a-zA-Zñ]/i)) {
+      const corrected = firstChar.toUpperCase() + pangungusap.slice(1);
+      return res.send(`MALI: *${pangungusap.trim().split(" ")[0]}*\nTAMANG SAGOT: ${corrected}`);
     }
 
-    // Capitalization rule
-    const unangLetra = pangungusap.charAt(0);
-    if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
-      const corrected = unangLetra.toUpperCase() + pangungusap.slice(1);
-      return res.send(
-        `MALI: *${pangungusap.trim().split(" ")[0]}*\nTAMANG SAGOT: ${corrected}`
-      );
-    }
-
-    // 🔹 Grammar + orthography check via GPT
+    // 🔹 GPT Filipino Grammar Logic
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
       temperature: 0.1,
-      max_tokens: 250,
+      max_tokens: 400,
       messages: [
         {
           role: "system",
           content: `
-Ikaw ay isang eksperto sa gramatika at ortograpiya ng wikang Filipino.
+Ikaw ay isang eksperto sa gramatika at ortograpiya ng wikang Filipino. Suriin ang pangungusap ayon sa lahat ng tuntunin ng KWF.
 
-Layunin: Suriin ang pangungusap batay sa lahat ng tuntunin sa gramatika, ortograpiya, at bantas ayon sa KWF.
+⚙️ Mga aspeto ng pagsusuri:
+1️⃣ **Bahagi ng Pananalita**  
+   - Tamang gamit ng pangngalan, panghalip, pandiwa, pang-uri, pang-abay, pang-ugnay, pang-ukol, pantukoy, at pantig.
+2️⃣ **Kayarian ng Pangungusap**  
+   - Dapat may simuno at panaguri at may buong diwa.
+3️⃣ **Ortograpiya at Baybay**  
+   - Wastong baybay ng mga salita at paggamit ng mga hiniram na salita.
+4️⃣ **Gitling (-)** ayon sa KWF:  
+   ✅ Walang gitling kung katinig ang kasunod (*napakabait, taglamig, pagkakaibigan*).  
+   ✅ May gitling kung patinig ang kasunod (*napaka-init, tag-init, pinaka-isa*).  
+   ❌ Mali kung may gitling kahit katinig (*napaka-bait, pag-pili, pag-laro*).  
+   ❌ Mali kung walang gitling kahit patinig (*napakainit, taginit, pinakaisa*).  
+   ❌ Mali kung pinaghiwalay (*pag laro* → *paglaro*).
+5️⃣ **Gamit ng "ng" at "nang"**  
+   - "ng" → pantukoy sa bagay o pangngalan (*Kumuha ng tubig.*)  
+   - "nang" → sa paraan, dahilan, o oras (*Tumakbo nang mabilis.*)
+6️⃣ **May / Mayroon**  
+   - "may" → kapag sinusundan ng pangngalan o pandiwa (*May aso ako.*)  
+   - "mayroon" → kapag sinusundan ng panghalip (*Mayroon akong aso.*)
+7️⃣ **Rin / Din**  
+   - "rin" → kasunod ay patinig o malapatinig (*ako rin, ikaw rin*)  
+   - "din" → kasunod ay katinig (*siya din, bata din*)
+8️⃣ **Raw / Daw**  
+   - "raw" → kasunod ay patinig (*sabi raw, umalis raw*)  
+   - "daw" → kasunod ay katinig (*sabi daw, punta daw*)
+9️⃣ **Bantas at Kapitalisasyon**  
+   - Malaking titik sa simula ng pangungusap.  
+   - Tuldok sa dulo ng pangungusap.  
+   - Tamang bantas para sa tanong o padamdam.
+🔟 **Pagkakasunod ng mga salita**  
+   - Dapat natural at malinaw ang daloy ng diwa.
 
-Saklaw ng pagsusuri:
-1. Bahagi ng pananalita (pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp)
-2. Kayarian ng pangungusap (payak, tambalan, hugnayan, langkapan)
-3. Ortograpiya (baybay, gitling, kapitalisasyon)
-4. Gamit ng mga salitang magkatulad (ng/nang, may/mayroon, rin/din, raw/daw)
-5. Paggamit ng Gitling (-) ayon sa KWF:
-   - Walang gitling kapag ang unlapi ay sinusundan ng katinig.  
-     ✅ napakabait, taglamig, pinakamaganda
-   - May gitling kapag ang unlapi ay sinusundan ng patinig.  
-     ✅ napaka-init, tag-init, pinaka-isa
-   - Mali kapag may gitling kahit katinig ang kasunod.  
-     ❌ napaka-bait, pag-pili, pag-laro
-   - Mali rin kung walang gitling kahit patinig ang kasunod.  
-     ❌ napakainit, taginit, pinakaisa
-6. Bantas, baybay, at wastong gamit ng mga salita.
-7. Simuno at panaguri – tiyakin na kumpleto ang pangungusap.
-8. Wastong pagkakasunod ng mga salita.
-9. Malalaking titik sa simula ng pangungusap at pangngalang pantangi.
+💬 Format ng sagot:
+Kung may mali:  
+MALI: *<maling bahagi>*  
+TAMANG SAGOT: <tamang pangungusap>  
 
-Format ng sagot:
-Kung mali:
-MALI: <lahat ng maling bahagi, bawat isa ay naka-asterisk>
-TAMANG SAGOT: <tamang pangungusap>
-
-Kung tama:
+Kung tama:  
 WALANG MALI
-
-Lahat ng sagot ay nasa wikang Filipino.
 `
         },
         {
           role: "assistant",
-          content: "Tandaan: Palaging gamitin ang eksaktong format — MALI o WALANG MALI lamang."
+          content: "Tandaan: Sagutin lamang ng 'MALI:' o 'WALANG MALI'. Walang paliwanag."
         },
         { role: "user", content: pangungusap }
       ]
@@ -168,6 +147,7 @@ Lahat ng sagot ay nasa wikang Filipino.
 
     const output = completion.choices[0].message.content.trim();
     res.type("text/plain").send(output);
+
   } catch (err) {
     console.error("❌ Error:", err);
     res.status(500).json({ error: err.message });
