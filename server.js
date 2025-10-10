@@ -132,8 +132,8 @@ Gabay sa pagsusuri:
 
 Format ng sagot:
 Kung mali:
-MALI: <maling salita>
-TAMANG SAGOT: <tamang pangungusap>
+MALI: <lahat ng maling salita lang, bawat isa ay naka-asterisk at pinaghihiwalay ng kuwit>
+TAMANG SAGOT: <tamang pangungusap, walang highlight>
 
 Kung tama:
 WALANG MALI
