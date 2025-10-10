@@ -67,11 +67,19 @@ app.post("/suriin-gramar", async (req, res) => {
     if (containsEnglish(pangungusap) || !mostlyFilipino(pangungusap)) {
       return res.send("Filipino lamang ang pinapayagan.");
     }
+    
+    //Bagong rule: dapat capital letter ang unang letra ng pangungusap
+    const unangLetra = pangungusap.trim().charAt(0);
+    if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
+      // Optional: you can even suggest a correction automatically
+      const corrected = unangLetra.toUpperCase() + pangungusap.trim().slice(1);
+      return res.send(`MALI: *${pangungusap.trim().split(" ")[0]}* \nTAMANG SAGOT: ${corrected}`);
+    }
 
     pangungusap = censorBadWords(pangungusap);
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4.1-mini",
       temperature: 0.1,
       max_tokens: 100,
       messages: [
