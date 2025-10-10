@@ -79,6 +79,24 @@ function isMostlyFilipino(text) {
   // ✅ At least 1 Filipino-like word + not majority English
   return filipinoCount >= 1 && filipinoCount >= words.length * 0.4;
 }
+// 🔹 Detect nonsense o paulit-ulit na pattern
+function isNonsenseOrRepetitive(text) {
+  const lower = text.toLowerCase().replace(/[^\w\sñ]/g, "");
+  const words = lower.split(/\s+/).filter(Boolean);
+
+  // paulit-ulit ang parehong salita o parirala
+  const repeatedPattern = /(ang|si|ng|ay|ako|ikaw|ko|mga)\s+\1/i;
+  if (repeatedPattern.test(lower)) return true;
+
+  // sobrang haba pero pare-pareho ang laman
+  const uniqueWords = new Set(words);
+  if (uniqueWords.size < words.length * 0.5) return true;
+
+  // wala o kulang sa simuno-panaguri
+  if (words.length < 3) return true;
+
+  return false;
+}
 
 // 🔹 Main endpoint
 app.post("/suriin-gramar", async (req, res) => {
@@ -96,6 +114,10 @@ app.post("/suriin-gramar", async (req, res) => {
     // 🔹 Check if may halatang English (pero mas lenient)
     if (containsEnglish(pangungusap) && !isMostlyFilipino(pangungusap)) {
       return res.send("Filipino lamang ang pinapayagan.");
+    }
+        // 🔹 Check nonsense or repetitive
+    if (isNonsenseOrRepetitive(pangungusap)) {
+      return res.send("Hindi maayos ang pangungusap mo.");
     }
 
     // 🔹 Rule: capital letter sa unang letra
@@ -139,7 +161,7 @@ Saklaw ng pagsusuri:
 7. **Simuno at panaguri** – tiyakin na kumpleto ang pangungusap.
 8. **Tamang pagkakasunod ng mga salita** – ayusin kung may baluktot o di-natural na pagkakasunod.
 9. **Wastong paggamit ng malalaking titik** sa simula ng pangungusap at sa pangngalang pantangi.
-10. **Lohika at saysay ng pangungusap** – kung ang pangungusap ay walang malinaw na kahulugan, paulit-ulit, o walang koneksyon ang mga salita, sagutin lamang ng:  “Di maayos ang pangungusap mo.”
+10. **Lohika at saysay ng pangungusap** – kung ang pangungusap ay walang malinaw na kahulugan, paulit-ulit, o walang koneksyon ang mga salita.
 11. Kung may mali, ibalik lamang ang format sa ibaba.
 12. Huwag magbigay ng anumang paliwanag o detalye.
 
