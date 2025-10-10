@@ -83,14 +83,19 @@ function correctHyphens(sentence) {
   const affixes = ["tag", "napaka", "pinaka", "pang", "pa", "mag", "ma", "mak"];
 
   return sentence.replace(/\b(\w+)\b/g, (word) => {
+    // Preserve capitalization
+    const original = word;
+    const lower = word.toLowerCase();
+
     for (let affix of affixes) {
-      if (word.toLowerCase().startsWith(affix)) {
-        const rest = word.slice(affix.length);
-        if (rest.length === 0) return word; // solo affix, no change
+      if (lower.startsWith(affix)) {
+        const rest = original.slice(affix.length);
+
+        if (!rest) return original; // solo affix, no change
 
         const firstChar = rest[0];
-        // Patinig → may dash
         if ("aeiouAEIOU".includes(firstChar)) {
+          // Patinig → dapat may dash
           return affix + "-" + rest;
         } else {
           // Katinig → walang dash
@@ -98,9 +103,10 @@ function correctHyphens(sentence) {
         }
       }
     }
-    return word; // walang affix match
+    return original; // wala sa affix
   });
 }
+
 
 
 // 🔹 Main endpoint
