@@ -46,11 +46,22 @@ function mostlyFilipino(text) {
   return count >= 2;
 }
 
+const filipinoAffixes = ["pag", "ka", "mag", "mak", "ma", "pa", "tag", "pang", "napaka", "pinaka"];
+
+function isLikelyFilipinoWord(word) {
+  return filipinoAffixes.some(affix => word.startsWith(affix)) || word.includes("ng");
+}
 // Tukuyin kung may English word
 function containsEnglish(text) {
-  const lowerText = text.toLowerCase();
-  return englishWords.some(word => new RegExp(`\\b${word}\\b`).test(lowerText));
+  const words = text
+    .toLowerCase()
+    .replace(/[^a-zA-ZñÑ\s]/g, "") // alisin ang punctuation
+    .split(/\s+/)
+    .filter(Boolean);
+
+  return words.some(w => englishWords.includes(w));
 }
+
 
 app.post("/suriin-gramar", async (req, res) => {
   try {
