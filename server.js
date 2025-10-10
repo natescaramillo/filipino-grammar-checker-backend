@@ -90,7 +90,7 @@ app.post("/suriin-gramar", async (req, res) => {
     }
 
     if (badWords.some(w => pangungusap.toLowerCase().includes(w))) {
-      return res.send("Bawal gumamit ng masasamang salita o mga balbal na salita.");
+      return res.send("Bawal gumamit ng masasamang salita.");
     }
 
     // 🔹 Check if may halatang English (pero mas lenient)
@@ -120,7 +120,6 @@ Ikaw ay isang eksperto sa gramatika **at ortograpiya** ng wikang Filipino.
 
 Layunin:
 Suriin ang pangungusap batay sa lahat ng tuntunin sa **gramatika, ortograpiya, at bantas** ng wikang Filipino ayon sa Komisyon sa Wikang Filipino (KWF). 
-Kasama ring suriin kung *makatwiran at may saysay* ang pangungusap — dapat may malinaw na simuno at panaguri, may lohikal na pagkakasunod, at hindi paulit-ulit o walang ugnayan ang mga salita.
 
 Saklaw ng pagsusuri:
 1. **Bahagi ng pananalita** – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
@@ -139,9 +138,8 @@ Saklaw ng pagsusuri:
 7. **Simuno at panaguri** – tiyakin na kumpleto ang pangungusap.
 8. **Tamang pagkakasunod ng mga salita** – ayusin kung may baluktot o di-natural na pagkakasunod.
 9. **Wastong paggamit ng malalaking titik** sa simula ng pangungusap at sa pangngalang pantangi.
-10. **Lohika at saysay ng pangungusap** – kung ang pangungusap ay walang malinaw na kahulugan, paulit-ulit, o walang koneksyon ang mga salita.
-11. Kung may mali, ibalik lamang ang format sa ibaba.
-12. Huwag magbigay ng anumang paliwanag o detalye.
+10. Kung may mali, ibalik lamang ang format sa ibaba.
+11. Huwag magbigay ng anumang paliwanag o detalye.
 
 Format ng sagot:
 Kung mali:
@@ -169,5 +167,4 @@ Lahat ng sagot ay dapat nasa wikang Filipino lamang.
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Filipino Grammar Checker running sa http://localhost:${PORT}`);
-}); paayos dapat consistent sya dapat madetect nya yung may di professional na sentence Walang malinaw na ugnayan ng mga salita.
-   - Nonsensical o paulit-ulit na pahayag 
+});
