@@ -138,6 +138,8 @@ Saklaw ng pagsusuri:
 7. **Simuno at panaguri** – tiyakin na kumpleto ang pangungusap.
 8. **Tamang pagkakasunod ng mga salita** – ayusin kung may baluktot o di-natural na pagkakasunod.
 9. **Wastong paggamit ng malalaking titik** sa simula ng pangungusap at sa pangngalang pantangi.
+10. Kung may mali, ibalik lamang ang format sa ibaba.
+11. Huwag magbigay ng anumang paliwanag o detalye.
 
 Format ng sagot:
 Kung mali:
