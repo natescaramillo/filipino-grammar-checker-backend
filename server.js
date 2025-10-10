@@ -81,19 +81,27 @@ function isMostlyFilipino(text) {
 // 🔹 Correct hyphens (-) ayon sa KWF
 function correctHyphens(sentence) {
   const affixes = ["tag", "napaka", "pinaka", "pang", "pa", "mag", "ma", "mak"];
-  
-  for (let affix of affixes) {
-    // 1️⃣ Patinig pagkatapos ng affix → dapat may gitling
-    const vowelRegex = new RegExp(`\\b${affix}([aeiouAEIOU]\\w*)\\b`, "g");
-    sentence = sentence.replace(vowelRegex, `${affix}-$1`);
 
-    // 2️⃣ Katinig pagkatapos ng affix → walang gitling
-    const consonantRegex = new RegExp(`\\b${affix}-?([^aeiouAEIOU\\s]\\w*)\\b`, "g");
-    sentence = sentence.replace(consonantRegex, `${affix}$1`);
-  }
+  return sentence.replace(/\b(\w+)\b/g, (word) => {
+    for (let affix of affixes) {
+      if (word.toLowerCase().startsWith(affix)) {
+        const rest = word.slice(affix.length);
+        if (rest.length === 0) return word; // solo affix, no change
 
-  return sentence;
+        const firstChar = rest[0];
+        // Patinig → may dash
+        if ("aeiouAEIOU".includes(firstChar)) {
+          return affix + "-" + rest;
+        } else {
+          // Katinig → walang dash
+          return affix + rest.replace(/^-/, ""); // tanggalin existing dash
+        }
+      }
+    }
+    return word; // walang affix match
+  });
 }
+
 
 // 🔹 Main endpoint
 app.post("/suriin-gramar", async (req, res) => {
