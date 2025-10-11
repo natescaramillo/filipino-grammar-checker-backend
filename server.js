@@ -23,15 +23,27 @@ const badWords = fs.readFileSync("bad_words.txt", "utf-8")
   .map(w => w.trim().toLowerCase())
   .filter(Boolean);
 
+// 🔹 Bad word checker (accurate)
+function containsBadWord(text) {
+  const lower = text.toLowerCase();
+  return badWords.some(bad => {
+    const safeWord = bad.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // escape regex chars
+    const regex = new RegExp(`\\b${safeWord}\\b`, "i");
+    return regex.test(lower);
+  });
+}
+
 // 🔹 Censor bad words
 function censorBadWords(text) {
   let censored = text;
   badWords.forEach(word => {
-    const regex = new RegExp(`\\b${word}\\b`, "gi");
+    const safeWord = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`\\b${safeWord}\\b`, "gi");
     censored = censored.replace(regex, "**");
   });
   return censored;
 }
+
 
 // 🔹 Filipino core words at affixes
 const filipinoWords = [
@@ -147,9 +159,9 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.status(400).send("Pakisulat muna ang pangungusap.");
     }
 
-    if (badWords.some(w => pangungusap.toLowerCase().includes(w))) {
-      return res.send("Bawal gumamit ng masasamang salita.");
-    }
+   if (containsBadWord(pangungusap)) {
+  return res.send("Bawal gumamit ng masasamang salita.");
+}
 
     if (containsEnglish(pangungusap) && !isMostlyFilipino(pangungusap)) {
       return res.send("Filipino lamang ang pinapayagan.");
