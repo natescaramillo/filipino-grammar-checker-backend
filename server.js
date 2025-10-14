@@ -171,17 +171,21 @@ app.post("/suriin-gramar", async (req, res) => {
     // 🔹 Capitalization check
     let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
     const unangLetra = cleaned.charAt(0);
-    if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
-      const corrected = unangLetra.toUpperCase() + cleaned.slice(1);
-      return res.send(`TAMA: ${corrected}`);
-    }
+    // 🔹 Capitalization check (ayusin lang, huwag i-return agad)
+let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
+const unangLetra = cleaned.charAt(0);
+if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
+  cleaned = unangLetra.toUpperCase() + cleaned.slice(1);
+}
+pangungusap = cleaned;
+
 
     pangungusap = censorBadWords(pangungusap);
     pangungusap = correctHyphens(pangungusap);
 
     // 🔹 GPT-based grammar correction
     const completion = await openai.chat.completions.create({
-      model: "gpt-4.1-mini",
+      model: "gpt-4.1",
       temperature: 0.1,
       max_tokens: 250,
       messages: [
