@@ -150,7 +150,6 @@ function correctHyphens(sentence) {
 
 
 
-// 🔹 Main endpoint
 app.post("/suriin-gramar", async (req, res) => {
   try {
     let { pangungusap } = req.body;
@@ -159,26 +158,28 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.status(400).send("Pakisulat muna ang pangungusap.");
     }
 
-   if (containsBadWord(pangungusap)) {
-  return res.send("Bawal gumamit ng masasamang salita.");
-}
+    // 🔹 Bad words
+    if (containsBadWord(pangungusap)) {
+      return res.send("Bawal gumamit ng masasamang salita.");
+    }
 
+    // 🔹 English detection
     if (containsEnglish(pangungusap) && !isMostlyFilipino(pangungusap)) {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
-    let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, ""); // alisin zero-width chars
-const unangLetra = cleaned.charAt(0);
-
-if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
-  const corrected = unangLetra.toUpperCase() + cleaned.slice(1);
-  return res.send(`MALI: *${cleaned.split(" ")[0]}* \nTAMANG SAGOT: ${corrected}`);
-}
-
+    // 🔹 Capitalization check
+    let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
+    const unangLetra = cleaned.charAt(0);
+    if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
+      const corrected = unangLetra.toUpperCase() + cleaned.slice(1);
+      return res.send(`TAMA: ${corrected}`);
+    }
 
     pangungusap = censorBadWords(pangungusap);
     pangungusap = correctHyphens(pangungusap);
 
+    // 🔹 GPT-based grammar correction
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
       temperature: 0.1,
@@ -189,7 +190,6 @@ if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) 
           content: `
 Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino.
 Huwag ituring na mali ang mga salitang walang tuldik (hal. "gutom" ay katumbas ng "gutóm").
-
 
 Saklaw ng pagsusuri:
 1. Bahagi ng pananalita – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
@@ -204,20 +204,14 @@ Saklaw ng pagsusuri:
    - Walang gitling kapag ang unlapi ay sinusundan ng katinig. (hal. napakabait, taglamig)
    - May gitling kapag ang unlapi ay sinusundan ng patinig. (hal. napaka-init, tag-init)
    - Mali kung may sobrang o kulang na gitling. (hal. napaka-bait, tag lamig)
-6. Bantas at baybay – wastong gamit ng tuldok, kuwit, tandang pananong, at tandang padamdam. (Dapat sabihin sa MALI kung ano ang kulang o mali sa pangungusap)
+6. Bantas at baybay – wastong gamit ng tuldok, kuwit, tandang pananong, at tandang padamdam.
 7. Simuno at panaguri – tiyakin na kumpleto ang pangungusap.
 8. Tamang pagkakasunod ng salita.
 9. Wastong paggamit ng malalaking titik.
 
-Format ng sagot:
-Kung mali:
-MALI: <lahat ng maling salita o bahagi, bawat isa ay naka-asterisk>
-TAMANG SAGOT: <tamang pangungusap, walang asterisk>
-
-Kung tama:
-WALANG MALI
-
-Lahat ng sagot ay nasa wikang Filipino lamang.
+🎯 Format ng sagot:
+- Kung may mali, ipakita lamang ang **TAMA:** kasunod ang buong tamang pangungusap (walang “MALI”).
+- Kung tama na, ipakita pa rin ang “TAMA:” kasunod ng orihinal na pangungusap.
           `
         },
         { role: "user", content: pangungusap }
@@ -225,15 +219,14 @@ Lahat ng sagot ay nasa wikang Filipino lamang.
     });
 
     const output = completion.choices[0].message.content.trim();
-    res.type("text/plain").send(output);
+
+    // Always prefix with TAMA if not already
+    let finalOutput = output.startsWith("TAMA") ? output : `TAMA: ${output}`;
+    res.type("text/plain").send(finalOutput);
 
   } catch (err) {
-    console.error("Error:", err);
+    console.error("❌ Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Filipino Grammar Checker running sa http://localhost:${PORT}`);
-});
