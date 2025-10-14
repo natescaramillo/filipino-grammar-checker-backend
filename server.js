@@ -167,11 +167,14 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
-    const unangLetra = pangungusap.trim().charAt(0);
-    if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
-      const corrected = unangLetra.toUpperCase() + pangungusap.trim().slice(1);
-      return res.send(`MALI: *${pangungusap.trim().split(" ")[0]}* \nTAMANG SAGOT: ${corrected}`);
-    }
+    let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, ""); // alisin zero-width chars
+const unangLetra = cleaned.charAt(0);
+
+if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
+  const corrected = unangLetra.toUpperCase() + cleaned.slice(1);
+  return res.send(`MALI: *${cleaned.split(" ")[0]}* \nTAMANG SAGOT: ${corrected}`);
+}
+
 
     pangungusap = censorBadWords(pangungusap);
     pangungusap = correctHyphens(pangungusap);
