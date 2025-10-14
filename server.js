@@ -188,6 +188,8 @@ if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) 
           role: "system",
           content: `
 Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino.
+Huwag ituring na mali ang mga salitang walang tuldik (hal. "gutom" ay katumbas ng "gutóm").
+
 
 Saklaw ng pagsusuri:
 1. Bahagi ng pananalita – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
