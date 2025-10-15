@@ -102,7 +102,7 @@ const affixExamples = {
   },
   pinaka: {
     vowel: ["pinaka-isa","pinaka-espesyal","pinaka-abot","pinaka-aliw","pinaka-alala","pinaka-aani","pinaka-alis","pinaka-ahon","pinaka-apat"],
-    consonant: ["pinakamaganda","pinakadakila","pinakamasaya","pinakamatatag","pinakalakas","pinakalinaw","pinakatalino","pinakatalino","pinakamabilis"]
+    consonant: ["pinakamaganda","pinakadakila","pinakamasaya","pinakamatatag","pinakalakas","pinakalinaw","pinakatino","pinakatalino","pinakamabilis","pinakatalino"]
   },
   pang: {
     vowel: ["pang-itaas","pang-ibaba","pang-aliw","pang-abot","pang-umaga","pang-alis","pang-angat","pang-aasa","pang-anim"],
@@ -119,28 +119,27 @@ const affixExamples = {
   ma: {
     vowel: ["ma-aral","ma-abot","ma-alis","ma-ahon","ma-aliw","ma-alala","ma-ani","ma-abang","ma-apoy","ma-alis"],
     consonant: ["maayos","makata","maaliwalas","magaling","malakas","matalino","maingat","mabait","masaya","matibay"]
-  },
-  pag: {
-    vowel: [
-      "pag-alis","pag-ibig","pag-akyat","pag-asa","pag-aral","pag-aani","pag-amin","pag-angat","pag-ayos",
-      "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos","pag-aalaga","pag-aalaga",
-      "pag-aangkin","pag-aalaga","pag-aantabay","pag-aalaga","pag-aalala","pag-aalaga","pag-aalaga","pag-aalaga",
-      "pag-ukit","pag-ulan","pag-uunawa","pag-uusap","pag-uunlad","pag-uunahan","pag-uunay","pag-uugali",
-      "pag-uunlad","pag-ibig","pag-iling","pag-ikot","pag-ubo","pag-ubo","pag-isa","pag-iingat","pag-iisip",
-      "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-unlad","pag-usad","pag-uusap","pag-uunlad"
-    ],
-    consonant: [
-      "pagtulog","paglinis","pagluto","pagturo","pagtawa","paghinga","pagdiriwang","paggalang","pagbasa","pagkain",
-      "pagkanta","paglakad","pagsulat","paglaba","pagsamba","pagputol","pagtanim","pagsigaw","pagdalo","pagbenta",
-      "pagkita","paglalaro","pagyaman","pagbili","pagkuha","pagbasa","pagdulot","pagpili","paglinang","paglaban",
-      "pagtanggap","pagtatag","pag-imbak","pagsasanay","paghahanap","pagpupuri","paghuhugas","pagkilos","paghihintay",
-      "pagsisikap","pagtitipid","pagtatayo","pagtitinda","pagpupulong","paglipad","pagtatagpo","pagkamangha",
-      "paglayo","paglapit","paglabas","pagpasok","pagsira","pagbangon","pagtatagumpay","paglalakbay","pagtatapos",
-      "pagluluto","paghahanda","paghahanapbuhay","pagsasaka","pagmamahal","pagmamasid","pagsasalita","pag-aalaga",
-      "pagtatanggol","pagsasanay","pag-aaral","pagsasabuhay","pagkakaloob","pagtatasa","pagpapatupad","paggalang",
-      "pagsisikap","pagsasaka","pagsamba","paghihirap","pagtagumpay"
-    ]
-  },
+  }, pag: {
+  vowel: [
+    "pag-alis","pag-ibig","pag-akyat","pag-asa","pag-aral","pag-aani","pag-amin","pag-angat","pag-ayos",
+    "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos","pag-aalaga","pag-aalaga",
+    "pag-aangkin","pag-aalaga","pag-aantabay","pag-aalaga","pag-aalala","pag-aalaga","pag-aalaga","pag-aalaga",
+    "pag-ukit","pag-ulan","pag-uunawa","pag-uusap","pag-uunlad","pag-uunahan","pag-uunay","pag-uugali",
+    "pag-uunlad","pag-ibig","pag-iling","pag-ikot","pag-ubo","pag-ubo","pag-isa","pag-iingat","pag-iisip",
+    "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-unlad","pag-usad","pag-uusap","pag-uunlad"
+  ],
+  consonant: [
+    "pagtulog","paglinis","pagluto","pagturo","pagtawa","paghinga","pagdiriwang","paggalang","pagbasa","pagkain",
+    "pagkanta","paglakad","pagsulat","paglaba","pagsamba","pagputol","pagtanim","pagsigaw","pagdalo","pagbenta",
+    "pagkita","paglalaro","pagyaman","pagbili","pagkuha","pagbasa","pagdulot","pagpili","paglinang","paglaban",
+    "pagtanggap","pagtatag","pag-imbak","pagsasanay","paghahanap","pagpupuri","paghuhugas","pagkilos","paghihintay",
+    "pagsisikap","pagtitipid","pagtatayo","pagtitinda","pagpupulong","paglipad","pagtatagpo","pagkamangha",
+    "paglayo","paglapit","paglabas","pagpasok","pagsira","pagbangon","pagtatagumpay","paglalakbay","pagtatapos",
+    "pagluluto","paghahanda","paghahanapbuhay","pagsasaka","pagmamahal","pagmamasid","pagsasalita","pag-aalaga",
+    "pagtatanggol","pagsasanay","pag-aaral","pagsasabuhay","pagkakaloob","pagtatasa","pagpapatupad","paggalang",
+    "pagsisikap","pagsasaka","pagsamba","paghihirap","pagtagumpay"
+  ]
+},
 };
 
 // 🔹 Updated correctHyphens function
@@ -183,6 +182,12 @@ function correctHyphens(sentence) {
     .join(" ");
 }
 
+
+
+
+
+
+
 app.post("/suriin-gramar", async (req, res) => {
   try {
     let { pangungusap } = req.body;
@@ -201,16 +206,23 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
-    // 🔹 Capitalization check
-    let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
-    const unangSalita = cleaned.split(/\s+/)[0].replace(/[.,!?;:]+$/, "");
-    const unangLetra = unangSalita.charAt(0);
+// 🔹 Capitalization check (ayusin kahit may comma o clause)
+let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
 
-    if (/^[a-zñ]/.test(unangLetra)) {
-      cleaned = unangLetra.toUpperCase() + cleaned.slice(1);
-    }
+// Kunin ang unang aktwal na letra (ignoring commas or punctuation)
+const unangSalita = cleaned.split(/\s+/)[0].replace(/[.,!?;:]+$/, "");
+const unangLetra = unangSalita.charAt(0);
 
-    pangungusap = cleaned;
+// Kung lowercase ang unang letra, gawing uppercase
+if (/^[a-zñ]/.test(unangLetra)) {
+  cleaned = unangLetra.toUpperCase() + cleaned.slice(1);
+}
+
+// Panatilihin ang iba pang bahagi ng pangungusap
+pangungusap = cleaned;
+
+
+
     pangungusap = censorBadWords(pangungusap);
     pangungusap = correctHyphens(pangungusap);
 
@@ -258,13 +270,16 @@ Saklaw ng pagsusuri:
 
 🎯 Format ng sagot:
 - Kung may mali, ipakita lamang ang **TAMA:** kasunod ang buong tamang pangungusap (walang “MALI”).
-- Kung tama na, ipakita pa rin ang “TAMA:” kasunod ng orihinal na pangungusap.          `
+- Kung tama na, ipakita pa rin ang “TAMA:” kasunod ng orihinal na pangungusap.
+          `
         },
         { role: "user", content: pangungusap }
       ]
     });
 
     const output = completion.choices[0].message.content.trim();
+
+    // Always prefix with TAMA if not already
     let finalOutput = output.startsWith("TAMA") ? output : `TAMA: ${output}`;
     res.type("text/plain").send(finalOutput);
 
@@ -272,11 +287,4 @@ Saklaw ng pagsusuri:
     console.error("Error:", err);
     res.status(500).json({ error: err.message });
   }
-});
-
-
-// ✅ ADD THIS AT THE VERY END
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
 });
