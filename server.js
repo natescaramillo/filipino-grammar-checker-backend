@@ -147,6 +147,7 @@ function correctHyphens(sentence) {
   const words = sentence.split(/\s+/);
   return words
     .map((word, index) => {
+      const original = word;
       const lower = word.toLowerCase();
 
       for (let affix in affixExamples) {
@@ -157,17 +158,21 @@ function correctHyphens(sentence) {
           const hasHyphen = word.includes("-");
           const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(word.charAt(0));
 
-          // ✅ Rule 1: Kung unang salita at capitalized (e.g., "Pag-ibig", "Tag-init"), huwag galawin ang unang letra.
+          // 🔹 FIX 1: Preserve original capitalization ALWAYS
+          const base = isCapital
+            ? affix.charAt(0).toUpperCase() + affix.slice(1)
+            : affix;
+
+          // 🔹 FIX 2: Kung unang salita at capitalized (e.g., "Pag-ibig"), huwag ibaba ang capital
           if (index === 0 && isCapital) {
-            // Pero ayusin pa rin ang hyphen kung mali
-            if (isVowel && !hasHyphen) return affix.charAt(0).toUpperCase() + affix.slice(1) + "-" + suffix;
-            if (!isVowel && hasHyphen) return affix.charAt(0).toUpperCase() + affix.slice(1) + suffix.replace("-", "");
-            return word;
+            if (isVowel && !hasHyphen) return `${base}-${suffix}`;
+            if (!isVowel && hasHyphen) return `${base}${suffix.replace("-", "")}`;
+            return original; // walang dapat baguhin
           }
 
-          // ✅ Rule 2: Kung hindi unang salita, normal hyphen correction
-          if (isVowel && !hasHyphen) return affix + "-" + suffix;
-          if (!isVowel && hasHyphen) return affix + suffix.replace("-", "");
+          // 🔹 FIX 3: Kung hindi unang salita
+          if (isVowel && !hasHyphen) return `${base}-${suffix}`;
+          if (!isVowel && hasHyphen) return `${base}${suffix.replace("-", "")}`;
         }
       }
 
@@ -175,6 +180,7 @@ function correctHyphens(sentence) {
     })
     .join(" ");
 }
+
 
 
 
