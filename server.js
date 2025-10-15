@@ -168,16 +168,16 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
-    // 🔹 Capitalization check
-    let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
-    const unangLetra = cleaned.charAt(0);
-    // 🔹 Capitalization check (ayusin lang, huwag i-return agad)
+// 🔹 Capitalization check (ayusin lang, huwag i-return agad)
 let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
 const unangLetra = cleaned.charAt(0);
+
 if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
   cleaned = unangLetra.toUpperCase() + cleaned.slice(1);
 }
+
 pangungusap = cleaned;
+
 
 
     pangungusap = censorBadWords(pangungusap);
@@ -229,7 +229,7 @@ Saklaw ng pagsusuri:
     res.type("text/plain").send(finalOutput);
 
   } catch (err) {
-    console.error("❌ Error:", err);
+    console.error("Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
