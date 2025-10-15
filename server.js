@@ -149,48 +149,59 @@ function correctHyphens(sentence) {
     const rawWord = word.replace(/[.,!?;:]$/, "");
     const lowerWord = rawWord.toLowerCase();
 
+    // 🔹 Hanapin kung aling affix ang tunay na applicable
+    let detectedAffix = null;
+
     for (let affix in affixExamples) {
       if (lowerWord.startsWith(affix)) {
-        const suffix = rawWord.slice(affix.length).replace(/^-/, "");
-        const lowerSuffix = suffix.toLowerCase();
-        const firstLetter = lowerSuffix.charAt(0);
-        const isVowel = /^[aeiou]/.test(firstLetter);
-        const hasHyphen = rawWord.includes("-");
-        const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(rawWord.charAt(0));
+        const suffix = lowerWord.slice(affix.length).replace(/^-/, "");
+        const vowel = /^[aeiou]/.test(suffix.charAt(0));
 
-        // ✅ Rule 1: Kung nasa tamang anyo na (affix + hyphen + vowel), wag galawin
-        if (hasHyphen && isVowel) return rawWord + punctuation;
+        const sampleList = vowel
+          ? affixExamples[affix].vowel
+          : affixExamples[affix].consonant;
 
-        // ✅ Rule 2: Kung nasa tamang anyo na (affix + consonant) at walang hyphen, wag galawin
-        if (!hasHyphen && !isVowel) return rawWord + punctuation;
+        // ✅ check kung may kahit isang sample na structurally kapareho
+        const possiblePattern = new RegExp(`^${affix}-?${suffix}$`, "i");
+        const isValidCombo = sampleList.some(ex => possiblePattern.test(ex));
 
-        // 🔹 Capitalization ng affix
-        const affixProper = isCapital
-          ? affix.charAt(0).toUpperCase() + affix.slice(1)
-          : affix;
-
-        let corrected;
-
-        // ✅ Rule 3: Kung vowel ang kasunod at walang hyphen → lagyan
-        if (isVowel && !hasHyphen) {
-          corrected = `${affixProper}-${suffix}`;
+        if (isValidCombo) {
+          detectedAffix = affix;
+          break;
         }
-        // ✅ Rule 4: Kung consonant ang kasunod at may hyphen → tanggalin
-        else if (!isVowel && hasHyphen) {
-          corrected = `${affixProper}${suffix.replace("-", "")}`;
-        }
-        // ✅ Rule 5: Kung walang mali, ibalik lang
-        else {
-          corrected = rawWord;
-        }
-
-        return corrected + punctuation;
       }
     }
 
-    return word; // hindi affix word
+    if (!detectedAffix) return word; // walang tugma
+
+    const affix = detectedAffix;
+    const suffix = rawWord.slice(affix.length).replace(/^-/, "");
+    const lowerSuffix = suffix.toLowerCase();
+    const firstLetter = lowerSuffix.charAt(0);
+    const isVowel = /^[aeiou]/.test(firstLetter);
+    const hasHyphen = rawWord.includes("-");
+    const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(rawWord.charAt(0));
+
+    // ✅ Rule 1: tamang anyo (affix + hyphen + vowel)
+    if (hasHyphen && isVowel) return rawWord + punctuation;
+    // ✅ Rule 2: tamang anyo (affix + consonant)
+    if (!hasHyphen && !isVowel) return rawWord + punctuation;
+
+    // 🔹 Capitalization
+    const affixProper = isCapital
+      ? affix.charAt(0).toUpperCase() + affix.slice(1)
+      : affix;
+
+    let corrected;
+    if (isVowel && !hasHyphen) corrected = `${affixProper}-${suffix}`;
+    else if (!isVowel && hasHyphen)
+      corrected = `${affixProper}${suffix.replace("-", "")}`;
+    else corrected = rawWord;
+
+    return corrected + punctuation;
   }).join(" ");
 }
+
 
 
 
