@@ -122,11 +122,10 @@ const affixExamples = {
   }, pag: {
   vowel: [
     "pag-alis","pag-ibig","pag-akyat","pag-asa","pag-aral","pag-aani","pag-amin","pag-angat","pag-ayos",
-    "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos","pag-aalaga","pag-aalaga",
-    "pag-aangkin","pag-aalaga","pag-aantabay","pag-aalaga","pag-aalala","pag-aalaga","pag-aalaga","pag-aalaga",
+    "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos", "pag-aangkin", "pag-aantabay","pag-aalala", "pag-aaral"
     "pag-ukit","pag-ulan","pag-uunawa","pag-uusap","pag-uunlad","pag-uunahan","pag-uunay","pag-uugali",
     "pag-uunlad","pag-ibig","pag-iling","pag-ikot","pag-ubo","pag-ubo","pag-isa","pag-iingat","pag-iisip",
-    "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-unlad","pag-usad","pag-uusap","pag-uunlad"
+    "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-usad","pag-uusap","pag-unlad", 
   ],
   consonant: [
     "pagtulog","paglinis","pagluto","pagturo","pagtawa","paghinga","pagdiriwang","paggalang","pagbasa","pagkain",
@@ -135,8 +134,8 @@ const affixExamples = {
     "pagtanggap","pagtatag","pag-imbak","pagsasanay","paghahanap","pagpupuri","paghuhugas","pagkilos","paghihintay",
     "pagsisikap","pagtitipid","pagtatayo","pagtitinda","pagpupulong","paglipad","pagtatagpo","pagkamangha",
     "paglayo","paglapit","paglabas","pagpasok","pagsira","pagbangon","pagtatagumpay","paglalakbay","pagtatapos",
-    "pagluluto","paghahanda","paghahanapbuhay","pagsasaka","pagmamahal","pagmamasid","pagsasalita","pag-aalaga",
-    "pagtatanggol","pagsasanay","pag-aaral","pagsasabuhay","pagkakaloob","pagtatasa","pagpapatupad","paggalang",
+    "pagluluto","paghahanda","paghahanapbuhay","pagsasaka","pagmamahal","pagmamasid","pagsasalita",
+    "pagtatanggol","pagsasanay","pagsasabuhay","pagkakaloob","pagtatasa","pagpapatupad","paggalang",
     "pagsisikap","pagsasaka","pagsamba","paghihirap","pagtagumpay"
   ]
 },
@@ -182,11 +181,6 @@ function correctHyphens(sentence) {
             } else {
               corrected = `${affixProper}${hasHyphen ? "" : isVowel ? "-" : ""}${suffix}`;
             }
-          }
-
-          // 🔒 Proteksyon laban sa sobrang correction
-          if (hasHyphen && isVowel && corrected.replace("-", "") === `${affixProper}${suffix}`) {
-            corrected = `${affixProper}-${suffix}`;
           }
 
           return corrected + punctuation;
