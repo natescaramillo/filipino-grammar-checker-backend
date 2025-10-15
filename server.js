@@ -194,6 +194,7 @@ pangungusap = cleaned;
           content: `
 Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino.
 Huwag ituring na mali ang mga salitang walang tuldik (hal. "gutom" ay katumbas ng "gutóm").
+Gawin mo lamang ang pagsusuri ng pangungusap, ngunit HUWAG baguhin kung tama na ito.
 Layunin mo lamang ay ayusin ang mga mali sa gramatika, hindi baguhin ang estilo o bantas ng pangungusap kung ito ay tama na.
 
 
