@@ -119,71 +119,33 @@ const affixExamples = {
   ma: {
     vowel: ["ma-aral","ma-abot","ma-alis","ma-ahon","ma-aliw","ma-alala","ma-ani","ma-abang","ma-apoy","ma-alis"],
     consonant: ["maayos","makata","maaliwalas","magaling","malakas","matalino","maingat","mabait","masaya","matibay"]
-  }, pag: {
-  vowel: [
-    "pag-alis","pag-ibig","pag-akyat","pag-asa","pag-aral","pag-aani","pag-amin","pag-angat","pag-ayos",
-    "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos","pag-aalaga","pag-aalaga",
-    "pag-aangkin","pag-aalaga","pag-aantabay","pag-aalaga","pag-aalala","pag-aalaga","pag-aalaga","pag-aalaga",
-    "pag-ukit","pag-ulan","pag-uunawa","pag-uusap","pag-uunlad","pag-uunahan","pag-uunay","pag-uugali",
-    "pag-uunlad","pag-ibig","pag-iling","pag-ikot","pag-ubo","pag-ubo","pag-isa","pag-iingat","pag-iisip",
-    "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-unlad","pag-usad","pag-uusap","pag-uunlad"
-  ],
-  consonant: [
-    "pagtulog","paglinis","pagluto","pagturo","pagtawa","paghinga","pagdiriwang","paggalang","pagbasa","pagkain",
-    "pagkanta","paglakad","pagsulat","paglaba","pagsamba","pagputol","pagtanim","pagsigaw","pagdalo","pagbenta",
-    "pagkita","paglalaro","pagyaman","pagbili","pagkuha","pagbasa","pagdulot","pagpili","paglinang","paglaban",
-    "pagtanggap","pagtatag","pag-imbak","pagsasanay","paghahanap","pagpupuri","paghuhugas","pagkilos","paghihintay",
-    "pagsisikap","pagtitipid","pagtatayo","pagtitinda","pagpupulong","paglipad","pagtatagpo","pagkamangha",
-    "paglayo","paglapit","paglabas","pagpasok","pagsira","pagbangon","pagtatagumpay","paglalakbay","pagtatapos",
-    "pagluluto","paghahanda","paghahanapbuhay","pagsasaka","pagmamahal","pagmamasid","pagsasalita","pag-aalaga",
-    "pagtatanggol","pagsasanay","pag-aaral","pagsasabuhay","pagkakaloob","pagtatasa","pagpapatupad","paggalang",
-    "pagsisikap","pagsasaka","pagsamba","paghihirap","pagtagumpay"
-  ]
-},
+  },
 };
 
 // 🔹 Updated correctHyphens function
 function correctHyphens(sentence) {
-  const words = sentence.split(/\s+/);
+  return sentence.replace(/\b[\w-]+\b/g, (word) => {
+    const lower = word.toLowerCase();
 
-  return words
-    .map((word, index) => {
-      const original = word;
-      const lowerWord = word.toLowerCase();
+    for (let affix in affixExamples) {
+      if (lower.startsWith(affix)) {
+        const rest = lower.slice(affix.length).replace(/^-/, ""); // remove existing dash
+        if (!rest) return word;
 
-      for (let affix in affixExamples) {
-        if (lowerWord.startsWith(affix)) {
-          const suffix = original.substring(affix.length);
-          const firstLetterSuffix = suffix.charAt(0);
-          const isVowel = /^[aeiou]/i.test(firstLetterSuffix);
-          const hasHyphen = original.includes("-");
-          const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(original.charAt(0));
-
-          // Preserve first letter capitalization
-          const affixProper = isCapital
-            ? affix.charAt(0).toUpperCase() + affix.slice(1)
-            : affix;
-
-          if (isVowel && !hasHyphen) {
-            return `${affixProper}-${suffix}`;
-          }
-
-          if (!isVowel && hasHyphen) {
-            return `${affixProper}${suffix.replace("-", "")}`;
-          }
-
-          // If hyphen is already correct, just preserve capitalization
-          return affixProper + suffix;
+        if (affixExamples[affix].vowel.includes(affix + "-" + rest)) {
+          return affix + "-" + rest; // vowel → dash
+        } else if (affixExamples[affix].consonant.includes(affix + rest)) {
+          return affix + rest; // consonant → no dash
+        } else {
+          // default rule if not listed
+          return "aeiou".includes(rest[0]) ? affix + "-" + rest : affix + rest;
         }
       }
+    }
 
-      return word; // hindi affix
-    })
-    .join(" ");
+    return word;
+  });
 }
-
-
-
 
 
 
@@ -206,29 +168,20 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
-// 🔹 Capitalization check (ayusin kahit may comma o clause)
-let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
-
-// Kunin ang unang aktwal na letra (ignoring commas or punctuation)
-const unangSalita = cleaned.split(/\s+/)[0].replace(/[.,!?;:]+$/, "");
-const unangLetra = unangSalita.charAt(0);
-
-// Kung lowercase ang unang letra, gawing uppercase
-if (/^[a-zñ]/.test(unangLetra)) {
-  cleaned = unangLetra.toUpperCase() + cleaned.slice(1);
-}
-
-// Panatilihin ang iba pang bahagi ng pangungusap
-pangungusap = cleaned;
-
-
+    // 🔹 Capitalization check
+    let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
+    const unangLetra = cleaned.charAt(0);
+    if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
+      const corrected = unangLetra.toUpperCase() + cleaned.slice(1);
+      return res.send(`TAMA: ${corrected}`);
+    }
 
     pangungusap = censorBadWords(pangungusap);
     pangungusap = correctHyphens(pangungusap);
 
     // 🔹 GPT-based grammar correction
     const completion = await openai.chat.completions.create({
-      model: "gpt-4.1",
+      model: "gpt-4.1-mini",
       temperature: 0.1,
       max_tokens: 250,
       messages: [
@@ -237,14 +190,6 @@ pangungusap = cleaned;
           content: `
 Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino.
 Huwag ituring na mali ang mga salitang walang tuldik (hal. "gutom" ay katumbas ng "gutóm").
-Layunin mo lamang ay ayusin ang mga mali sa gramatika, hindi baguhin ang estilo o bantas ng pangungusap kung ito ay tama na.
-
-⚠️ MAHALAGA:
-- Huwag ituring na mali kung tama na ang unang letra ng unang salita (hal. "Pagbangon, aking niligpit ang higaan.").
-- Huwag ituring na mali ang maliit na titik pagkatapos ng kuwit, gitling, o panipi kung hindi ito nagsisimula ng bagong pangungusap.
-- Huwag ituring na mali ang mga unlaping "pag-", "mag-", "tag-", "napaka-", "pinaka-", at iba pa kung tama ang paggamit ng gitling o capital letter.
-- Huwag baguhin kung ang pangungusap ay gramatikal na tama, kahit may sariling estilo ng bantas o pagsulat.
-- Ituring lamang na mali kung may malinaw na kamalian sa balarila, kayarian, o baybay.
 
 Saklaw ng pagsusuri:
 1. Bahagi ng pananalita – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
@@ -263,10 +208,6 @@ Saklaw ng pagsusuri:
 7. Simuno at panaguri – tiyakin na kumpleto ang pangungusap.
 8. Tamang pagkakasunod ng salita.
 9. Wastong paggamit ng malalaking titik.
-10. Huwag ituring na mali kung ang unang letra ng unang salita ay kapital.
-11. Huwag ituring na mali kung kumpleto na ang pangungusap (may simuno at panaguri).
-12. Huwag baguhin ang anyo ng mga pandiwa kung tama na ang konteksto.
-13. Ituring lamang na mali kung may kulang sa gramatika o istruktura (hindi dahil sa estilo).
 
 🎯 Format ng sagot:
 - Kung may mali, ipakita lamang ang **TAMA:** kasunod ang buong tamang pangungusap (walang “MALI”).
@@ -284,7 +225,7 @@ Saklaw ng pagsusuri:
     res.type("text/plain").send(finalOutput);
 
   } catch (err) {
-    console.error("Error:", err);
+    console.error("❌ Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
