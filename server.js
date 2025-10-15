@@ -214,14 +214,15 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
+    pangungusap = censorBadWords(pangungusap);
+    pangungusap = correctHyphens(pangungusap);
+    
     const unangLetra = pangungusap.trim().charAt(0);
     if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
       const corrected = unangLetra.toUpperCase() + pangungusap.trim().slice(1);
       return res.send(`MALI: *${pangungusap.trim().split(" ")[0]}* \nTAMANG SAGOT: ${corrected}`);
     }
 
-    pangungusap = censorBadWords(pangungusap);
-    pangungusap = correctHyphens(pangungusap);
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
