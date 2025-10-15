@@ -2,11 +2,15 @@ import express from "express";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import fs from "fs";
+import cors from "cors"; 
+
 
 dotenv.config();
 
+
 const app = express();
 app.use(express.json());
+app.use(cors()); 
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -119,33 +123,69 @@ const affixExamples = {
   ma: {
     vowel: ["ma-aral","ma-abot","ma-alis","ma-ahon","ma-aliw","ma-alala","ma-ani","ma-abang","ma-apoy","ma-alis"],
     consonant: ["maayos","makata","maaliwalas","magaling","malakas","matalino","maingat","mabait","masaya","matibay"]
-  },
+  }, pag: {
+  vowel: [
+    "pag-alis","pag-ibig","pag-akyat","pag-asa","pag-aral","pag-aani","pag-amin","pag-angat","pag-ayos",
+    "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos","pag-aalaga","pag-aalaga",
+    "pag-aangkin","pag-aalaga","pag-aantabay","pag-aalaga","pag-aalala","pag-aalaga","pag-aalaga","pag-aalaga",
+    "pag-ukit","pag-ulan","pag-uunawa","pag-uusap","pag-uunlad","pag-uunahan","pag-uunay","pag-uugali",
+    "pag-uunlad","pag-ibig","pag-iling","pag-ikot","pag-ubo","pag-ubo","pag-isa","pag-iingat","pag-iisip",
+    "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-unlad","pag-usad","pag-uusap","pag-uunlad"
+  ],
+  consonant: [
+    "pagtulog","paglinis","pagluto","pagturo","pagtawa","paghinga","pagdiriwang","paggalang","pagbasa","pagkain",
+    "pagkanta","paglakad","pagsulat","paglaba","pagsamba","pagputol","pagtanim","pagsigaw","pagdalo","pagbenta",
+    "pagkita","paglalaro","pagyaman","pagbili","pagkuha","pagbasa","pagdulot","pagpili","paglinang","paglaban",
+    "pagtanggap","pagtatag","pag-imbak","pagsasanay","paghahanap","pagpupuri","paghuhugas","pagkilos","paghihintay",
+    "pagsisikap","pagtitipid","pagtatayo","pagtitinda","pagpupulong","paglipad","pagtatagpo","pagkamangha",
+    "paglayo","paglapit","paglabas","pagpasok","pagsira","pagbangon","pagtatagumpay","paglalakbay","pagtatapos",
+    "pagluluto","paghahanda","paghahanapbuhay","pagsasaka","pagmamahal","pagmamasid","pagsasalita","pag-aalaga",
+    "pagtatanggol","pagsasanay","pag-aaral","pagsasabuhay","pagkakaloob","pagtatasa","pagpapatupad","paggalang",
+    "pagsisikap","pagsasaka","pagsamba","paghihirap","pagtagumpay"
+  ]
+},
 };
 
 // 🔹 Updated correctHyphens function
 function correctHyphens(sentence) {
-  return sentence.replace(/\b[\w-]+\b/g, (word) => {
-    const lower = word.toLowerCase();
+  const words = sentence.split(/\s+/);
 
-    for (let affix in affixExamples) {
-      if (lower.startsWith(affix)) {
-        const rest = lower.slice(affix.length).replace(/^-/, ""); // remove existing dash
-        if (!rest) return word;
+  return words
+    .map((word, index) => {
+      const original = word;
+      const lowerWord = word.toLowerCase();
 
-        if (affixExamples[affix].vowel.includes(affix + "-" + rest)) {
-          return affix + "-" + rest; // vowel → dash
-        } else if (affixExamples[affix].consonant.includes(affix + rest)) {
-          return affix + rest; // consonant → no dash
-        } else {
-          // default rule if not listed
-          return "aeiou".includes(rest[0]) ? affix + "-" + rest : affix + rest;
+      for (let affix in affixExamples) {
+        if (lowerWord.startsWith(affix)) {
+          const suffix = original.substring(affix.length);
+          const firstLetterSuffix = suffix.charAt(0);
+          const isVowel = /^[aeiou]/i.test(firstLetterSuffix);
+          const hasHyphen = original.includes("-");
+          const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(original.charAt(0));
+
+          // Preserve first letter capitalization
+          const affixProper = isCapital
+            ? affix.charAt(0).toUpperCase() + affix.slice(1)
+            : affix;
+
+          if (isVowel && !hasHyphen) {
+            return `${affixProper}-${suffix}`;
+          }
+
+          if (!isVowel && hasHyphen) {
+            return `${affixProper}${suffix.replace("-", "")}`;
+          }
+
+          // If hyphen is already correct, just preserve capitalization
+          return affixProper + suffix;
         }
       }
-    }
 
-    return word;
-  });
+      return word; // hindi affix
+    })
+    .join(" ");
 }
+
 
 
 
@@ -228,4 +268,10 @@ Saklaw ng pagsusuri:
     console.error("❌ Error:", err);
     res.status(500).json({ error: err.message });
   }
+});
+
+// 🔹 Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
