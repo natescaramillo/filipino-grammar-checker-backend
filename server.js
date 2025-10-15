@@ -208,13 +208,14 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
-    // 🔹 Capitalization check
+     // 🔹 Capitalization check
     let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
     const unangLetra = cleaned.charAt(0);
     if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
       const corrected = unangLetra.toUpperCase() + cleaned.slice(1);
-      return res.send(`TAMA: ${corrected}`);
+      return res.send(`MALI: ${corrected}`); // 🔹 Previously returned TAMA, now MALI
     }
+
 
     pangungusap = censorBadWords(pangungusap);
     pangungusap = correctHyphens(pangungusap);
@@ -260,9 +261,12 @@ Saklaw ng pagsusuri:
 
     const output = completion.choices[0].message.content.trim();
 
-    // Always prefix with TAMA if not already
-    let finalOutput = output.startsWith("TAMA") ? output : `TAMA: ${output}`;
-    res.type("text/plain").send(finalOutput);
+     // Detect GPT output prefix
+    let finalOutput = output.startsWith("TAMA") || output.startsWith("MALI")
+      ? output
+      : `TAMA: ${output}`;
+        res.type("text/plain").send(finalOutput);
+
 
   } catch (err) {
     console.error("❌ Error:", err);
