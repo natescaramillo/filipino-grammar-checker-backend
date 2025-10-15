@@ -122,7 +122,7 @@ const affixExamples = {
   }, pag: {
   vowel: [
     "pag-alis","pag-ibig","pag-akyat","pag-asa","pag-aral","pag-aani","pag-amin","pag-angat","pag-ayos",
-    "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos", "pag-aangkin", "pag-aantabay","pag-aalala", "pag-aaral"
+    "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos", "pag-aangkin", "pag-aantabay","pag-aalala", "pag-aaral",
     "pag-ukit","pag-ulan","pag-uunawa","pag-uusap","pag-uunlad","pag-uunahan","pag-uunay","pag-uugali",
     "pag-uunlad","pag-ibig","pag-iling","pag-ikot","pag-ubo","pag-ubo","pag-isa","pag-iingat","pag-iisip",
     "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-usad","pag-uusap","pag-unlad", 
