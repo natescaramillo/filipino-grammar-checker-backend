@@ -145,41 +145,43 @@ const affixExamples = {
 // 🔹 Updated correctHyphens function
 function correctHyphens(sentence) {
   const words = sentence.split(/\s+/);
+
   return words
     .map((word, index) => {
       const original = word;
-      const lower = word.toLowerCase();
+      const lowerWord = word.toLowerCase();
 
       for (let affix in affixExamples) {
-        if (lower.startsWith(affix)) {
-          const suffix = lower.substring(affix.length);
-          const firstLetter = suffix.charAt(0);
-          const isVowel = /^[aeiou]/.test(firstLetter);
-          const hasHyphen = word.includes("-");
-          const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(word.charAt(0));
+        if (lowerWord.startsWith(affix)) {
+          const suffix = original.substring(affix.length);
+          const firstLetterSuffix = suffix.charAt(0);
+          const isVowel = /^[aeiou]/i.test(firstLetterSuffix);
+          const hasHyphen = original.includes("-");
+          const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(original.charAt(0));
 
-          // 🔹 FIX 1: Preserve original capitalization ALWAYS
-          const base = isCapital
+          // Preserve first letter capitalization
+          const affixProper = isCapital
             ? affix.charAt(0).toUpperCase() + affix.slice(1)
             : affix;
 
-          // 🔹 FIX 2: Kung unang salita at capitalized (e.g., "Pag-ibig"), huwag ibaba ang capital
-          if (index === 0 && isCapital) {
-            if (isVowel && !hasHyphen) return `${base}-${suffix}`;
-            if (!isVowel && hasHyphen) return `${base}${suffix.replace("-", "")}`;
-            return original; // walang dapat baguhin
+          if (isVowel && !hasHyphen) {
+            return `${affixProper}-${suffix}`;
           }
 
-          // 🔹 FIX 3: Kung hindi unang salita
-          if (isVowel && !hasHyphen) return `${base}-${suffix}`;
-          if (!isVowel && hasHyphen) return `${base}${suffix.replace("-", "")}`;
+          if (!isVowel && hasHyphen) {
+            return `${affixProper}${suffix.replace("-", "")}`;
+          }
+
+          // If hyphen is already correct, just preserve capitalization
+          return affixProper + suffix;
         }
       }
 
-      return word;
+      return word; // hindi affix
     })
     .join(" ");
 }
+
 
 
 
@@ -235,9 +237,14 @@ pangungusap = cleaned;
           content: `
 Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino.
 Huwag ituring na mali ang mga salitang walang tuldik (hal. "gutom" ay katumbas ng "gutóm").
-Gawin mo lamang ang pagsusuri ng pangungusap, ngunit HUWAG baguhin kung tama na ito.
 Layunin mo lamang ay ayusin ang mga mali sa gramatika, hindi baguhin ang estilo o bantas ng pangungusap kung ito ay tama na.
 
+⚠️ MAHALAGA:
+- Huwag ituring na mali kung tama na ang unang letra ng unang salita (hal. "Pagbangon, aking niligpit ang higaan.").
+- Huwag ituring na mali ang maliit na titik pagkatapos ng kuwit, gitling, o panipi kung hindi ito nagsisimula ng bagong pangungusap.
+- Huwag ituring na mali ang mga unlaping "pag-", "mag-", "tag-", "napaka-", "pinaka-", at iba pa kung tama ang paggamit ng gitling o capital letter.
+- Huwag baguhin kung ang pangungusap ay gramatikal na tama, kahit may sariling estilo ng bantas o pagsulat.
+- Ituring lamang na mali kung may malinaw na kamalian sa balarila, kayarian, o baybay.
 
 Saklaw ng pagsusuri:
 1. Bahagi ng pananalita – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
