@@ -188,21 +188,21 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
-// 🔹 Capitalization check (ayusin lang, huwag i-return agad)
-// 🔹 Capitalization check (fixed: huwag mamali kahit may comma o clause)
+// 🔹 Capitalization check (ayusin kahit may comma o clause)
 let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
 
-// Kunin lang ang unang letra ng unang salita (hindi bawat clause)
-const unangSalita = cleaned.split(/\s+/)[0];
+// Kunin ang unang aktwal na letra (ignoring commas or punctuation)
+const unangSalita = cleaned.split(/\s+/)[0].replace(/[.,!?;:]+$/, "");
 const unangLetra = unangSalita.charAt(0);
 
-// Kung unang letra ay lowercase, itaas lang kung unang salita ng sentence talaga
+// Kung lowercase ang unang letra, gawing uppercase
 if (/^[a-zñ]/.test(unangLetra)) {
   cleaned = unangLetra.toUpperCase() + cleaned.slice(1);
 }
 
-// Huwag pakialaman ang mga kasunod ng comma o clause
+// Panatilihin ang iba pang bahagi ng pangungusap
 pangungusap = cleaned;
+
 
 
     pangungusap = censorBadWords(pangungusap);
@@ -255,11 +255,6 @@ Saklaw ng pagsusuri:
     });
 
     const output = completion.choices[0].message.content.trim();
-    // 🔹 Kung parehong pareho ang input at output (maliban sa prefix), huwag palitan
-if (output.replace(/^TAMA:\s*/i, "").trim().toLowerCase() === pangungusap.trim().toLowerCase()) {
-  return res.send(`TAMA: ${pangungusap}`);
-}
-
 
     // Always prefix with TAMA if not already
     let finalOutput = output.startsWith("TAMA") ? output : `TAMA: ${output}`;
