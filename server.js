@@ -142,51 +142,55 @@ const affixExamples = {
 },
 };
 
-// 🔹 Updated correctHyphens function
 function correctHyphens(sentence) {
-  return sentence.replace(/\b[\w-]+[.,!?;:]?/g, (word) => {
-    // 🔹 Hatiin word at punctuation (e.g., "Pag ibig," -> "Pag ibig" + ",")
-    const punctuation = word.match(/[.,!?;:]$/)?.[0] || "";
-    const rawWord = word.replace(/[.,!?;:]$/, ""); // tanggalin muna punctuation
+  const words = sentence.split(/\s+/);
 
-    const lower = rawWord.toLowerCase();
+  return words
+    .map((word) => {
+      const punctuation = word.match(/[.,!?;:]$/)?.[0] || "";
+      const rawWord = word.replace(/[.,!?;:]$/, ""); // tanggalin punctuation
+      const lowerWord = rawWord.toLowerCase();
 
-    for (let affix in affixExamples) {
-      if (lower.startsWith(affix)) {
-        const rest = lower.slice(affix.length).replace(/^-/, ""); // tanggalin existing dash kung meron
-        if (!rest) return rawWord + punctuation;
+      for (let affix in affixExamples) {
+        if (lowerWord.startsWith(affix)) {
+          const suffix = rawWord.substring(affix.length).replace(/^-/, "");
+          const firstLetterSuffix = suffix.charAt(0);
+          const isVowel = /^[aeiou]/i.test(firstLetterSuffix);
+          const hasHyphen = rawWord.includes("-");
+          const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(rawWord.charAt(0));
 
-        let corrected;
+          // 🔹 Capitalized affix
+          const affixProper = isCapital
+            ? affix.charAt(0).toUpperCase() + affix.slice(1)
+            : affix;
 
-        //Check kung exact match sa vowel list (tamang may dash)
-        if (affixExamples[affix].vowel.includes(affix + "-" + rest)) {
-          corrected = affix + "-" + rest;
+          let corrected;
+
+          // 1️⃣ Check exact matches sa vowel/consonant list
+          if (affixExamples[affix].vowel.includes(`${affix}-${suffix}`)) {
+            corrected = `${affixProper}-${suffix}`;
+          } else if (affixExamples[affix].consonant.includes(`${affix}${suffix}`)) {
+            corrected = `${affixProper}${suffix}`;
+          } else {
+            // 2️⃣ Default vowel/consonant rule
+            if (isVowel && !hasHyphen) {
+              corrected = `${affixProper}-${suffix}`;
+            } else if (!isVowel && hasHyphen) {
+              corrected = `${affixProper}${suffix.replace("-", "")}`;
+            } else {
+              corrected = `${affixProper}${hasHyphen ? "" : isVowel ? "-" : ""}${suffix}`;
+            }
+          }
+
+          return corrected + punctuation;
         }
-        //Check kung exact match sa consonant list (tamang walang dash)
-        else if (affixExamples[affix].consonant.includes(affix + rest)) {
-          corrected = affix + rest;
-        }
-        //Default rule (kung wala sa list)
-        else {
-          corrected = "aeiou".includes(rest[0])
-            ? affix + "-" + rest // vowel → may dash
-            : affix + rest; // consonant → walang dash
-        }
-
-        //Panatilihin ang capitalization ng unang letra kung capital ang original word
-        if (/^[A-Z]/.test(rawWord)) {
-          corrected = corrected.charAt(0).toUpperCase() + corrected.slice(1);
-        }
-
-        //Ibalik ang punctuation sa dulo
-        return corrected + punctuation;
       }
-    }
 
-    // kung hindi affix word
-    return word;
-  });
+      return word; // not an affix word
+    })
+    .join(" ");
 }
+
 
 
 
@@ -227,6 +231,8 @@ app.post("/suriin-gramar", async (req, res) => {
           role: "system",
           content: `
 Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino.
+Huwag ituring na mali ang mga salitang walang tuldik (hal. "gutom" ay katumbas ng "gutóm").
+Layunin mo lamang ay ayusin ang mga mali sa gramatika, hindi baguhin ang estilo o bantas ng pangungusap kung ito ay tama na.
 
 Saklaw ng pagsusuri:
 1. Bahagi ng pananalita – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
