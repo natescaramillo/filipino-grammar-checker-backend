@@ -2,15 +2,11 @@ import express from "express";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import fs from "fs";
-import cors from "cors"; 
-
 
 dotenv.config();
 
-
 const app = express();
 app.use(express.json());
-app.use(cors()); 
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -123,73 +119,38 @@ const affixExamples = {
   ma: {
     vowel: ["ma-aral","ma-abot","ma-alis","ma-ahon","ma-aliw","ma-alala","ma-ani","ma-abang","ma-apoy","ma-alis"],
     consonant: ["maayos","makata","maaliwalas","magaling","malakas","matalino","maingat","mabait","masaya","matibay"]
-  }, pag: {
-  vowel: [
-    "pag-alis","pag-ibig","pag-akyat","pag-asa","pag-aral","pag-aani","pag-amin","pag-angat","pag-ayos",
-    "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos","pag-aalaga","pag-aalaga",
-    "pag-aangkin","pag-aalaga","pag-aantabay","pag-aalaga","pag-aalala","pag-aalaga","pag-aalaga","pag-aalaga",
-    "pag-ukit","pag-ulan","pag-uunawa","pag-uusap","pag-uunlad","pag-uunahan","pag-uunay","pag-uugali",
-    "pag-uunlad","pag-ibig","pag-iling","pag-ikot","pag-ubo","pag-ubo","pag-isa","pag-iingat","pag-iisip",
-    "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-unlad","pag-usad","pag-uusap","pag-uunlad"
-  ],
-  consonant: [
-    "pagtulog","paglinis","pagluto","pagturo","pagtawa","paghinga","pagdiriwang","paggalang","pagbasa","pagkain",
-    "pagkanta","paglakad","pagsulat","paglaba","pagsamba","pagputol","pagtanim","pagsigaw","pagdalo","pagbenta",
-    "pagkita","paglalaro","pagyaman","pagbili","pagkuha","pagbasa","pagdulot","pagpili","paglinang","paglaban",
-    "pagtanggap","pagtatag","pag-imbak","pagsasanay","paghahanap","pagpupuri","paghuhugas","pagkilos","paghihintay",
-    "pagsisikap","pagtitipid","pagtatayo","pagtitinda","pagpupulong","paglipad","pagtatagpo","pagkamangha",
-    "paglayo","paglapit","paglabas","pagpasok","pagsira","pagbangon","pagtatagumpay","paglalakbay","pagtatapos",
-    "pagluluto","paghahanda","paghahanapbuhay","pagsasaka","pagmamahal","pagmamasid","pagsasalita","pag-aalaga",
-    "pagtatanggol","pagsasanay","pag-aaral","pagsasabuhay","pagkakaloob","pagtatasa","pagpapatupad","paggalang",
-    "pagsisikap","pagsasaka","pagsamba","paghihirap","pagtagumpay"
-  ]
-},
+  },
 };
 
 // 🔹 Updated correctHyphens function
 function correctHyphens(sentence) {
-  const words = sentence.split(/\s+/);
+  return sentence.replace(/\b[\w-]+\b/g, (word) => {
+    const lower = word.toLowerCase();
 
-  return words
-    .map((word, index) => {
-      const original = word;
-      const lowerWord = word.toLowerCase();
+    for (let affix in affixExamples) {
+      if (lower.startsWith(affix)) {
+        const rest = lower.slice(affix.length).replace(/^-/, ""); // remove existing dash
+        if (!rest) return word;
 
-      for (let affix in affixExamples) {
-        if (lowerWord.startsWith(affix)) {
-          const suffix = original.substring(affix.length);
-          const firstLetterSuffix = suffix.charAt(0);
-          const isVowel = /^[aeiou]/i.test(firstLetterSuffix);
-          const hasHyphen = original.includes("-");
-          const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(original.charAt(0));
-
-          // Preserve first letter capitalization
-          const affixProper = isCapital
-            ? affix.charAt(0).toUpperCase() + affix.slice(1)
-            : affix;
-
-          if (isVowel && !hasHyphen) {
-            return `${affixProper}-${suffix}`;
-          }
-
-          if (!isVowel && hasHyphen) {
-            return `${affixProper}${suffix.replace("-", "")}`;
-          }
-
-          // If hyphen is already correct, just preserve capitalization
-          return affixProper + suffix;
+        if (affixExamples[affix].vowel.includes(affix + "-" + rest)) {
+          return affix + "-" + rest; // vowel → dash
+        } else if (affixExamples[affix].consonant.includes(affix + rest)) {
+          return affix + rest; // consonant → no dash
+        } else {
+          // default rule if not listed
+          return "aeiou".includes(rest[0]) ? affix + "-" + rest : affix + rest;
         }
       }
+    }
 
-      return word; // hindi affix
-    })
-    .join(" ");
+    return word;
+  });
 }
 
 
 
 
-
+// 🔹 Main endpoint
 app.post("/suriin-gramar", async (req, res) => {
   try {
     let { pangungusap } = req.body;
@@ -198,29 +159,23 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.status(400).send("Pakisulat muna ang pangungusap.");
     }
 
-    // 🔹 Bad words
-    if (containsBadWord(pangungusap)) {
-      return res.send("Bawal gumamit ng masasamang salita.");
-    }
+   if (containsBadWord(pangungusap)) {
+  return res.send("Bawal gumamit ng masasamang salita.");
+}
 
-    // 🔹 English detection
     if (containsEnglish(pangungusap) && !isMostlyFilipino(pangungusap)) {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
-     // 🔹 Capitalization check
-    let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
-    const unangLetra = cleaned.charAt(0);
+    const unangLetra = pangungusap.trim().charAt(0);
     if (unangLetra === unangLetra.toLowerCase() && unangLetra.match(/[a-zA-Zñ]/i)) {
-      const corrected = unangLetra.toUpperCase() + cleaned.slice(1);
-      return res.send(`MALI: ${corrected}`); // 🔹 Previously returned TAMA, now MALI
+      const corrected = unangLetra.toUpperCase() + pangungusap.trim().slice(1);
+      return res.send(`MALI: *${pangungusap.trim().split(" ")[0]}* \nTAMANG SAGOT: ${corrected}`);
     }
-
 
     pangungusap = censorBadWords(pangungusap);
     pangungusap = correctHyphens(pangungusap);
 
-    // 🔹 GPT-based grammar correction
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
       temperature: 0.1,
@@ -230,7 +185,6 @@ app.post("/suriin-gramar", async (req, res) => {
           role: "system",
           content: `
 Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino.
-Huwag ituring na mali ang mga salitang walang tuldik (hal. "gutom" ay katumbas ng "gutóm").
 
 Saklaw ng pagsusuri:
 1. Bahagi ng pananalita – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
@@ -245,14 +199,20 @@ Saklaw ng pagsusuri:
    - Walang gitling kapag ang unlapi ay sinusundan ng katinig. (hal. napakabait, taglamig)
    - May gitling kapag ang unlapi ay sinusundan ng patinig. (hal. napaka-init, tag-init)
    - Mali kung may sobrang o kulang na gitling. (hal. napaka-bait, tag lamig)
-6. Bantas at baybay – wastong gamit ng tuldok, kuwit, tandang pananong, at tandang padamdam.
+6. Bantas at baybay – wastong gamit ng tuldok, kuwit, tandang pananong, at tandang padamdam. (Dapat sabihin sa MALI kung ano ang kulang o mali sa pangungusap)
 7. Simuno at panaguri – tiyakin na kumpleto ang pangungusap.
 8. Tamang pagkakasunod ng salita.
 9. Wastong paggamit ng malalaking titik.
 
-🎯 Format ng sagot:
-- Kung may mali, ipakita lamang ang **TAMA:** kasunod ang buong tamang pangungusap (walang “MALI”).
-- Kung tama na, ipakita pa rin ang “TAMA:” kasunod ng orihinal na pangungusap.
+Format ng sagot:
+Kung mali:
+MALI: <lahat ng maling salita o bahagi, bawat isa ay naka-asterisk>
+TAMANG SAGOT: <tamang pangungusap, walang asterisk>
+
+Kung tama:
+WALANG MALI
+
+Lahat ng sagot ay nasa wikang Filipino lamang.
           `
         },
         { role: "user", content: pangungusap }
@@ -260,22 +220,15 @@ Saklaw ng pagsusuri:
     });
 
     const output = completion.choices[0].message.content.trim();
-
-     // Detect GPT output prefix
-    let finalOutput = output.startsWith("TAMA") || output.startsWith("MALI")
-      ? output
-      : `TAMA: ${output}`;
-        res.type("text/plain").send(finalOutput);
-
+    res.type("text/plain").send(output);
 
   } catch (err) {
-    console.error("❌ Error:", err);
+    console.error("Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// 🔹 Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Filipino Grammar Checker running sa http://localhost:${PORT}`);
 });
