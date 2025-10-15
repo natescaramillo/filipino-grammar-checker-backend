@@ -144,59 +144,54 @@ const affixExamples = {
 function correctHyphens(sentence) {
   const words = sentence.split(/\s+/);
 
-  return words
-    .map((word) => {
-      const punctuation = word.match(/[.,!?;:]$/)?.[0] || "";
-      const rawWord = word.replace(/[.,!?;:]$/, "");
-      const lowerWord = rawWord.toLowerCase();
+  return words.map((word) => {
+    const punctuation = word.match(/[.,!?;:]$/)?.[0] || "";
+    const rawWord = word.replace(/[.,!?;:]$/, "");
+    const lowerWord = rawWord.toLowerCase();
 
-      for (let affix in affixExamples) {
-        if (lowerWord.startsWith(affix)) {
-          const suffix = rawWord.slice(affix.length).replace(/^-/, "").toLowerCase();
-          const firstLetterSuffix = suffix.charAt(0).toLowerCase();
-          const isVowel = /^[aeiou]/.test(firstLetterSuffix);
-          const hasHyphen = rawWord.includes("-");
-          const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(rawWord.charAt(0));
+    for (let affix in affixExamples) {
+      if (lowerWord.startsWith(affix)) {
+        const suffix = rawWord.slice(affix.length).replace(/^-/, "");
+        const lowerSuffix = suffix.toLowerCase();
+        const firstLetter = lowerSuffix.charAt(0);
+        const isVowel = /^[aeiou]/.test(firstLetter);
+        const hasHyphen = rawWord.includes("-");
+        const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(rawWord.charAt(0));
 
-          // ✅ Universal rule: kung may gitling at vowel ang kasunod → tama na
-          if (hasHyphen && isVowel) {
-            return rawWord + punctuation;
-          }
+        // ✅ Rule 1: Kung nasa tamang anyo na (affix + hyphen + vowel), wag galawin
+        if (hasHyphen && isVowel) return rawWord + punctuation;
 
-          // 🔹 Prepare affix (respect capitalization)
-          const affixProper = isCapital
-            ? affix.charAt(0).toUpperCase() + affix.slice(1)
-            : affix;
+        // ✅ Rule 2: Kung nasa tamang anyo na (affix + consonant) at walang hyphen, wag galawin
+        if (!hasHyphen && !isVowel) return rawWord + punctuation;
 
-          // 🔹 Case-insensitive match sa affixExamples
-          const vowelList = affixExamples[affix].vowel.map(w => w.toLowerCase());
-          const consonantList = affixExamples[affix].consonant.map(w => w.toLowerCase());
+        // 🔹 Capitalization ng affix
+        const affixProper = isCapital
+          ? affix.charAt(0).toUpperCase() + affix.slice(1)
+          : affix;
 
-          let corrected;
+        let corrected;
 
-          if (vowelList.includes(`${affix}-${suffix}`)) {
-            corrected = `${affixProper}-${suffix}`;
-          } else if (consonantList.includes(`${affix}${suffix}`)) {
-            corrected = `${affixProper}${suffix}`;
-          } else {
-            // 🔹 Fallback rule kapag di nakita sa list
-            if (isVowel && !hasHyphen) {
-              corrected = `${affixProper}-${suffix}`;
-            } else if (!isVowel && hasHyphen) {
-              corrected = `${affixProper}${suffix.replace("-", "")}`;
-            } else {
-              corrected = `${affixProper}${hasHyphen ? "" : isVowel ? "-" : ""}${suffix}`;
-            }
-          }
-
-          return corrected + punctuation;
+        // ✅ Rule 3: Kung vowel ang kasunod at walang hyphen → lagyan
+        if (isVowel && !hasHyphen) {
+          corrected = `${affixProper}-${suffix}`;
         }
-      }
+        // ✅ Rule 4: Kung consonant ang kasunod at may hyphen → tanggalin
+        else if (!isVowel && hasHyphen) {
+          corrected = `${affixProper}${suffix.replace("-", "")}`;
+        }
+        // ✅ Rule 5: Kung walang mali, ibalik lang
+        else {
+          corrected = rawWord;
+        }
 
-      return word; // not an affix word
-    })
-    .join(" ");
+        return corrected + punctuation;
+      }
+    }
+
+    return word; // hindi affix word
+  }).join(" ");
 }
+
 
 
 
