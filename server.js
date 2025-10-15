@@ -102,7 +102,7 @@ const affixExamples = {
   },
   pinaka: {
     vowel: ["pinaka-isa","pinaka-espesyal","pinaka-abot","pinaka-aliw","pinaka-alala","pinaka-aani","pinaka-alis","pinaka-ahon","pinaka-apat"],
-    consonant: ["pinakamaganda","pinakadakila","pinakamasaya","pinakamatatag","pinakalakas","pinakalinaw","pinakatino","pinakatalino","pinakamabilis","pinakatalino"]
+    consonant: ["pinakamaganda","pinakadakila","pinakamasaya","pinakamatatag","pinakalakas","pinakalinaw","pinakatalino","pinakatalino","pinakamabilis"]
   },
   pang: {
     vowel: ["pang-itaas","pang-ibaba","pang-aliw","pang-abot","pang-umaga","pang-alis","pang-angat","pang-aasa","pang-anim"],
@@ -119,27 +119,28 @@ const affixExamples = {
   ma: {
     vowel: ["ma-aral","ma-abot","ma-alis","ma-ahon","ma-aliw","ma-alala","ma-ani","ma-abang","ma-apoy","ma-alis"],
     consonant: ["maayos","makata","maaliwalas","magaling","malakas","matalino","maingat","mabait","masaya","matibay"]
-  }, pag: {
-  vowel: [
-    "pag-alis","pag-ibig","pag-akyat","pag-asa","pag-aral","pag-aani","pag-amin","pag-angat","pag-ayos",
-    "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos","pag-aalaga","pag-aalaga",
-    "pag-aangkin","pag-aalaga","pag-aantabay","pag-aalaga","pag-aalala","pag-aalaga","pag-aalaga","pag-aalaga",
-    "pag-ukit","pag-ulan","pag-uunawa","pag-uusap","pag-uunlad","pag-uunahan","pag-uunay","pag-uugali",
-    "pag-uunlad","pag-ibig","pag-iling","pag-ikot","pag-ubo","pag-ubo","pag-isa","pag-iingat","pag-iisip",
-    "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-unlad","pag-usad","pag-uusap","pag-uunlad"
-  ],
-  consonant: [
-    "pagtulog","paglinis","pagluto","pagturo","pagtawa","paghinga","pagdiriwang","paggalang","pagbasa","pagkain",
-    "pagkanta","paglakad","pagsulat","paglaba","pagsamba","pagputol","pagtanim","pagsigaw","pagdalo","pagbenta",
-    "pagkita","paglalaro","pagyaman","pagbili","pagkuha","pagbasa","pagdulot","pagpili","paglinang","paglaban",
-    "pagtanggap","pagtatag","pag-imbak","pagsasanay","paghahanap","pagpupuri","paghuhugas","pagkilos","paghihintay",
-    "pagsisikap","pagtitipid","pagtatayo","pagtitinda","pagpupulong","paglipad","pagtatagpo","pagkamangha",
-    "paglayo","paglapit","paglabas","pagpasok","pagsira","pagbangon","pagtatagumpay","paglalakbay","pagtatapos",
-    "pagluluto","paghahanda","paghahanapbuhay","pagsasaka","pagmamahal","pagmamasid","pagsasalita","pag-aalaga",
-    "pagtatanggol","pagsasanay","pag-aaral","pagsasabuhay","pagkakaloob","pagtatasa","pagpapatupad","paggalang",
-    "pagsisikap","pagsasaka","pagsamba","paghihirap","pagtagumpay"
-  ]
-},
+  },
+  pag: {
+    vowel: [
+      "pag-alis","pag-ibig","pag-akyat","pag-asa","pag-aral","pag-aani","pag-amin","pag-angat","pag-ayos",
+      "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos","pag-aalaga","pag-aalaga",
+      "pag-aangkin","pag-aalaga","pag-aantabay","pag-aalaga","pag-aalala","pag-aalaga","pag-aalaga","pag-aalaga",
+      "pag-ukit","pag-ulan","pag-uunawa","pag-uusap","pag-uunlad","pag-uunahan","pag-uunay","pag-uugali",
+      "pag-uunlad","pag-ibig","pag-iling","pag-ikot","pag-ubo","pag-ubo","pag-isa","pag-iingat","pag-iisip",
+      "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-unlad","pag-usad","pag-uusap","pag-uunlad"
+    ],
+    consonant: [
+      "pagtulog","paglinis","pagluto","pagturo","pagtawa","paghinga","pagdiriwang","paggalang","pagbasa","pagkain",
+      "pagkanta","paglakad","pagsulat","paglaba","pagsamba","pagputol","pagtanim","pagsigaw","pagdalo","pagbenta",
+      "pagkita","paglalaro","pagyaman","pagbili","pagkuha","pagbasa","pagdulot","pagpili","paglinang","paglaban",
+      "pagtanggap","pagtatag","pag-imbak","pagsasanay","paghahanap","pagpupuri","paghuhugas","pagkilos","paghihintay",
+      "pagsisikap","pagtitipid","pagtatayo","pagtitinda","pagpupulong","paglipad","pagtatagpo","pagkamangha",
+      "paglayo","paglapit","paglabas","pagpasok","pagsira","pagbangon","pagtatagumpay","paglalakbay","pagtatapos",
+      "pagluluto","paghahanda","paghahanapbuhay","pagsasaka","pagmamahal","pagmamasid","pagsasalita","pag-aalaga",
+      "pagtatanggol","pagsasanay","pag-aaral","pagsasabuhay","pagkakaloob","pagtatasa","pagpapatupad","paggalang",
+      "pagsisikap","pagsasaka","pagsamba","paghihirap","pagtagumpay"
+    ]
+  },
 };
 
 // 🔹 Updated correctHyphens function
@@ -182,12 +183,6 @@ function correctHyphens(sentence) {
     .join(" ");
 }
 
-
-
-
-
-
-
 app.post("/suriin-gramar", async (req, res) => {
   try {
     let { pangungusap } = req.body;
@@ -206,23 +201,16 @@ app.post("/suriin-gramar", async (req, res) => {
       return res.send("Filipino lamang ang pinapayagan.");
     }
 
-// 🔹 Capitalization check (ayusin kahit may comma o clause)
-let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
+    // 🔹 Capitalization check
+    let cleaned = pangungusap.trim().replace(/^[\u200B-\u200D\uFEFF]/g, "");
+    const unangSalita = cleaned.split(/\s+/)[0].replace(/[.,!?;:]+$/, "");
+    const unangLetra = unangSalita.charAt(0);
 
-// Kunin ang unang aktwal na letra (ignoring commas or punctuation)
-const unangSalita = cleaned.split(/\s+/)[0].replace(/[.,!?;:]+$/, "");
-const unangLetra = unangSalita.charAt(0);
+    if (/^[a-zñ]/.test(unangLetra)) {
+      cleaned = unangLetra.toUpperCase() + cleaned.slice(1);
+    }
 
-// Kung lowercase ang unang letra, gawing uppercase
-if (/^[a-zñ]/.test(unangLetra)) {
-  cleaned = unangLetra.toUpperCase() + cleaned.slice(1);
-}
-
-// Panatilihin ang iba pang bahagi ng pangungusap
-pangungusap = cleaned;
-
-
-
+    pangungusap = cleaned;
     pangungusap = censorBadWords(pangungusap);
     pangungusap = correctHyphens(pangungusap);
 
@@ -235,42 +223,7 @@ pangungusap = cleaned;
         {
           role: "system",
           content: `
-Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino.
-Huwag ituring na mali ang mga salitang walang tuldik (hal. "gutom" ay katumbas ng "gutóm").
-Layunin mo lamang ay ayusin ang mga mali sa gramatika, hindi baguhin ang estilo o bantas ng pangungusap kung ito ay tama na.
-
-⚠️ MAHALAGA:
-- Huwag ituring na mali kung tama na ang unang letra ng unang salita (hal. "Pagbangon, aking niligpit ang higaan.").
-- Huwag ituring na mali ang maliit na titik pagkatapos ng kuwit, gitling, o panipi kung hindi ito nagsisimula ng bagong pangungusap.
-- Huwag ituring na mali ang mga unlaping "pag-", "mag-", "tag-", "napaka-", "pinaka-", at iba pa kung tama ang paggamit ng gitling o capital letter.
-- Huwag baguhin kung ang pangungusap ay gramatikal na tama, kahit may sariling estilo ng bantas o pagsulat.
-- Ituring lamang na mali kung may malinaw na kamalian sa balarila, kayarian, o baybay.
-
-Saklaw ng pagsusuri:
-1. Bahagi ng pananalita – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
-2. Kayarian ng pangungusap – payak, tambalan, hugnayan, o langkapan.
-3. Ortograpiya – wastong baybay, paggamit ng gitling (-), at wastong kapitalisasyon.
-4. Gamit ng mga salitang magkatulad:
-   - ng vs nang
-   - may vs mayroon
-   - rin vs din
-   - raw vs daw
-5. **Gitling (-)** – sundin ang patakaran ng KWF:
-   - Walang gitling kapag ang unlapi ay sinusundan ng katinig. (hal. napakabait, taglamig)
-   - May gitling kapag ang unlapi ay sinusundan ng patinig. (hal. napaka-init, tag-init)
-   - Mali kung may sobrang o kulang na gitling. (hal. napaka-bait, tag lamig)
-6. Bantas at baybay – wastong gamit ng tuldok, kuwit, tandang pananong, at tandang padamdam.
-7. Simuno at panaguri – tiyakin na kumpleto ang pangungusap.
-8. Tamang pagkakasunod ng salita.
-9. Wastong paggamit ng malalaking titik.
-10. Huwag ituring na mali kung ang unang letra ng unang salita ay kapital.
-11. Huwag ituring na mali kung kumpleto na ang pangungusap (may simuno at panaguri).
-12. Huwag baguhin ang anyo ng mga pandiwa kung tama na ang konteksto.
-13. Ituring lamang na mali kung may kulang sa gramatika o istruktura (hindi dahil sa estilo).
-
-🎯 Format ng sagot:
-- Kung may mali, ipakita lamang ang **TAMA:** kasunod ang buong tamang pangungusap (walang “MALI”).
-- Kung tama na, ipakita pa rin ang “TAMA:” kasunod ng orihinal na pangungusap.
+Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino...
           `
         },
         { role: "user", content: pangungusap }
@@ -278,8 +231,6 @@ Saklaw ng pagsusuri:
     });
 
     const output = completion.choices[0].message.content.trim();
-
-    // Always prefix with TAMA if not already
     let finalOutput = output.startsWith("TAMA") ? output : `TAMA: ${output}`;
     res.type("text/plain").send(finalOutput);
 
@@ -289,3 +240,9 @@ Saklaw ng pagsusuri:
   }
 });
 
+
+// ✅ ADD THIS AT THE VERY END
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
