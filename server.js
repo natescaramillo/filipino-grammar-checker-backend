@@ -194,6 +194,8 @@ pangungusap = cleaned;
           content: `
 Ikaw ay eksperto sa gramatika at ortograpiya ng wikang Filipino.
 Huwag ituring na mali ang mga salitang walang tuldik (hal. "gutom" ay katumbas ng "gutóm").
+Layunin mo lamang ay ayusin ang mga mali sa gramatika, hindi baguhin ang estilo o bantas ng pangungusap kung ito ay tama na.
+
 
 Saklaw ng pagsusuri:
 1. Bahagi ng pananalita – tiyakin ang wastong gamit ng pantukoy, pangngalan, pandiwa, pang-ukol, pang-uri, pang-abay, pang-ugnay, atbp.
@@ -212,6 +214,10 @@ Saklaw ng pagsusuri:
 7. Simuno at panaguri – tiyakin na kumpleto ang pangungusap.
 8. Tamang pagkakasunod ng salita.
 9. Wastong paggamit ng malalaking titik.
+10. Huwag ituring na mali kung ang unang letra ng unang salita ay kapital.
+11. Huwag ituring na mali kung kumpleto na ang pangungusap (may simuno at panaguri).
+12. Huwag baguhin ang anyo ng mga pandiwa kung tama na ang konteksto.
+13. Ituring lamang na mali kung may kulang sa gramatika o istruktura (hindi dahil sa estilo).
 
 🎯 Format ng sagot:
 - Kung may mali, ipakita lamang ang **TAMA:** kasunod ang buong tamang pangungusap (walang “MALI”).
