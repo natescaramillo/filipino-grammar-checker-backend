@@ -153,26 +153,28 @@ function correctHyphens(sentence) {
 
       for (let affix in affixExamples) {
         if (lowerWord.startsWith(affix)) {
-          const suffix = rawWord.substring(affix.length).replace(/^-/, "");
-          const firstLetterSuffix = suffix.charAt(0);
-          const isVowel = /^[aeiou]/i.test(firstLetterSuffix);
+          const suffix = rawWord.slice(affix.length).replace(/^-/, "").toLowerCase();
+          const firstLetterSuffix = suffix.charAt(0).toLowerCase();
+          const isVowel = /^[aeiou]/.test(firstLetterSuffix);
           const hasHyphen = rawWord.includes("-");
           const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(rawWord.charAt(0));
 
-          // 🔹 Capitalized affix
+          // 🔹 Early return kung tama na (may gitling + patinig)
+          if (hasHyphen && isVowel) {
+            return rawWord + punctuation;
+          }
+
           const affixProper = isCapital
             ? affix.charAt(0).toUpperCase() + affix.slice(1)
             : affix;
 
           let corrected;
 
-          // 1️⃣ Check exact matches sa vowel/consonant list
           if (affixExamples[affix].vowel.includes(`${affix}-${suffix}`)) {
             corrected = `${affixProper}-${suffix}`;
           } else if (affixExamples[affix].consonant.includes(`${affix}${suffix}`)) {
             corrected = `${affixProper}${suffix}`;
           } else {
-            // 2️⃣ Default vowel/consonant rule
             if (isVowel && !hasHyphen) {
               corrected = `${affixProper}-${suffix}`;
             } else if (!isVowel && hasHyphen) {
@@ -180,6 +182,11 @@ function correctHyphens(sentence) {
             } else {
               corrected = `${affixProper}${hasHyphen ? "" : isVowel ? "-" : ""}${suffix}`;
             }
+          }
+
+          // 🔒 Proteksyon laban sa sobrang correction
+          if (hasHyphen && isVowel && corrected.replace("-", "") === `${affixProper}${suffix}`) {
+            corrected = `${affixProper}-${suffix}`;
           }
 
           return corrected + punctuation;
