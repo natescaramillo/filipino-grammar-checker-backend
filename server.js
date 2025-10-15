@@ -158,21 +158,28 @@ function correctHyphens(sentence) {
           const hasHyphen = rawWord.includes("-");
           const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(rawWord.charAt(0));
 
-          // Universal rule: kung may gitling at vowel ang kasunod, tama na
+          // ✅ Universal rule: kung may gitling at vowel ang kasunod → tama na
           if (hasHyphen && isVowel) {
             return rawWord + punctuation;
           }
 
+          // 🔹 Prepare affix (respect capitalization)
           const affixProper = isCapital
             ? affix.charAt(0).toUpperCase() + affix.slice(1)
             : affix;
 
+          // 🔹 Case-insensitive match sa affixExamples
+          const vowelList = affixExamples[affix].vowel.map(w => w.toLowerCase());
+          const consonantList = affixExamples[affix].consonant.map(w => w.toLowerCase());
+
           let corrected;
-          if (affixExamples[affix].vowel.includes(`${affix}-${suffix}`)) {
+
+          if (vowelList.includes(`${affix}-${suffix}`)) {
             corrected = `${affixProper}-${suffix}`;
-          } else if (affixExamples[affix].consonant.includes(`${affix}${suffix}`)) {
+          } else if (consonantList.includes(`${affix}${suffix}`)) {
             corrected = `${affixProper}${suffix}`;
           } else {
+            // 🔹 Fallback rule kapag di nakita sa list
             if (isVowel && !hasHyphen) {
               corrected = `${affixProper}-${suffix}`;
             } else if (!isVowel && hasHyphen) {
@@ -190,8 +197,6 @@ function correctHyphens(sentence) {
     })
     .join(" ");
 }
-
-
 
 
 
