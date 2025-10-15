@@ -147,7 +147,7 @@ function correctHyphens(sentence) {
   return words
     .map((word) => {
       const punctuation = word.match(/[.,!?;:]$/)?.[0] || "";
-      const rawWord = word.replace(/[.,!?;:]$/, ""); // tanggalin punctuation
+      const rawWord = word.replace(/[.,!?;:]$/, "");
       const lowerWord = rawWord.toLowerCase();
 
       for (let affix in affixExamples) {
@@ -158,7 +158,7 @@ function correctHyphens(sentence) {
           const hasHyphen = rawWord.includes("-");
           const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(rawWord.charAt(0));
 
-          // 🔹 Early return kung tama na (may gitling + patinig)
+          // Universal rule: kung may gitling at vowel ang kasunod, tama na
           if (hasHyphen && isVowel) {
             return rawWord + punctuation;
           }
@@ -168,7 +168,6 @@ function correctHyphens(sentence) {
             : affix;
 
           let corrected;
-
           if (affixExamples[affix].vowel.includes(`${affix}-${suffix}`)) {
             corrected = `${affixProper}-${suffix}`;
           } else if (affixExamples[affix].consonant.includes(`${affix}${suffix}`)) {
