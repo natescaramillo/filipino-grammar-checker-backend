@@ -2,12 +2,15 @@ import express from "express";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import fs from "fs";
+import cors from "cors"; 
+
 
 dotenv.config();
 
 
 const app = express();
 app.use(express.json());
+app.use(cors()); 
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -265,4 +268,10 @@ Saklaw ng pagsusuri:
     console.error("❌ Error:", err);
     res.status(500).json({ error: err.message });
   }
+});
+
+// 🔹 Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
