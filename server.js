@@ -144,28 +144,38 @@ const affixExamples = {
 
 // 🔹 Updated correctHyphens function
 function correctHyphens(sentence) {
-  return sentence.replace(/\b[\w-]+\b/g, (word) => {
-    const lower = word.toLowerCase();
+  const words = sentence.split(/\s+/);
+  return words
+    .map((word, index) => {
+      const lower = word.toLowerCase();
 
-    for (let affix in affixExamples) {
-      if (lower.startsWith(affix)) {
-        const rest = lower.slice(affix.length).replace(/^-/, ""); // remove existing dash
-        if (!rest) return word;
+      for (let affix in affixExamples) {
+        if (lower.startsWith(affix)) {
+          const suffix = lower.substring(affix.length);
+          const firstLetter = suffix.charAt(0);
+          const isVowel = /^[aeiou]/.test(firstLetter);
+          const hasHyphen = word.includes("-");
+          const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(word.charAt(0));
 
-        if (affixExamples[affix].vowel.includes(affix + "-" + rest)) {
-          return affix + "-" + rest; // vowel → dash
-        } else if (affixExamples[affix].consonant.includes(affix + rest)) {
-          return affix + rest; // consonant → no dash
-        } else {
-          // default rule if not listed
-          return "aeiou".includes(rest[0]) ? affix + "-" + rest : affix + rest;
+          // ✅ Rule 1: Kung unang salita at capitalized (e.g., "Pag-ibig", "Tag-init"), huwag galawin ang unang letra.
+          if (index === 0 && isCapital) {
+            // Pero ayusin pa rin ang hyphen kung mali
+            if (isVowel && !hasHyphen) return affix.charAt(0).toUpperCase() + affix.slice(1) + "-" + suffix;
+            if (!isVowel && hasHyphen) return affix.charAt(0).toUpperCase() + affix.slice(1) + suffix.replace("-", "");
+            return word;
+          }
+
+          // ✅ Rule 2: Kung hindi unang salita, normal hyphen correction
+          if (isVowel && !hasHyphen) return affix + "-" + suffix;
+          if (!isVowel && hasHyphen) return affix + suffix.replace("-", "");
         }
       }
-    }
 
-    return word;
-  });
+      return word;
+    })
+    .join(" ");
 }
+
 
 
 
