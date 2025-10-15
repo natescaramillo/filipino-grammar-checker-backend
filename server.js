@@ -119,7 +119,27 @@ const affixExamples = {
   ma: {
     vowel: ["ma-aral","ma-abot","ma-alis","ma-ahon","ma-aliw","ma-alala","ma-ani","ma-abang","ma-apoy","ma-alis"],
     consonant: ["maayos","makata","maaliwalas","magaling","malakas","matalino","maingat","mabait","masaya","matibay"]
-  },
+  }, pag: {
+  vowel: [
+    "pag-alis","pag-ibig","pag-akyat","pag-asa","pag-aral","pag-aani","pag-amin","pag-angat","pag-ayos",
+    "pag-aalaga","pag-aaway","pag-aari","pag-aasawa","pag-aalay","pag-aayos","pag-aalaga","pag-aalaga",
+    "pag-aangkin","pag-aalaga","pag-aantabay","pag-aalaga","pag-aalala","pag-aalaga","pag-aalaga","pag-aalaga",
+    "pag-ukit","pag-ulan","pag-uunawa","pag-uusap","pag-uunlad","pag-uunahan","pag-uunay","pag-uugali",
+    "pag-uunlad","pag-ibig","pag-iling","pag-ikot","pag-ubo","pag-ubo","pag-isa","pag-iingat","pag-iisip",
+    "pag-ikot","pag-uwi","pag-ubo","pag-utos","pag-ukit","pag-ulan","pag-unlad","pag-usad","pag-uusap","pag-uunlad"
+  ],
+  consonant: [
+    "pagtulog","paglinis","pagluto","pagturo","pagtawa","paghinga","pagdiriwang","paggalang","pagbasa","pagkain",
+    "pagkanta","paglakad","pagsulat","paglaba","pagsamba","pagputol","pagtanim","pagsigaw","pagdalo","pagbenta",
+    "pagkita","paglalaro","pagyaman","pagbili","pagkuha","pagbasa","pagdulot","pagpili","paglinang","paglaban",
+    "pagtanggap","pagtatag","pag-imbak","pagsasanay","paghahanap","pagpupuri","paghuhugas","pagkilos","paghihintay",
+    "pagsisikap","pagtitipid","pagtatayo","pagtitinda","pagpupulong","paglipad","pagtatagpo","pagkamangha",
+    "paglayo","paglapit","paglabas","pagpasok","pagsira","pagbangon","pagtatagumpay","paglalakbay","pagtatapos",
+    "pagluluto","paghahanda","paghahanapbuhay","pagsasaka","pagmamahal","pagmamasid","pagsasalita","pag-aalaga",
+    "pagtatanggol","pagsasanay","pag-aaral","pagsasabuhay","pagkakaloob","pagtatasa","pagpapatupad","paggalang",
+    "pagsisikap","pagsasaka","pagsamba","paghihirap","pagtagumpay"
+  ]
+},
 };
 
 // 🔹 Updated correctHyphens function
