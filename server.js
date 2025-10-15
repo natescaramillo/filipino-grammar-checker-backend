@@ -145,28 +145,44 @@ const affixExamples = {
 
 // 🔹 Updated correctHyphens function
 function correctHyphens(sentence) {
-  return sentence.replace(/\b[\w-]+\b/g, (word) => {
-    const lower = word.toLowerCase();
+  const words = sentence.split(/\s+/);
 
-    for (let affix in affixExamples) {
-      if (lower.startsWith(affix)) {
-        const rest = lower.slice(affix.length).replace(/^-/, ""); // remove existing dash
-        if (!rest) return word;
+  return words
+    .map((word, index) => {
+      const original = word;
+      const lowerWord = word.toLowerCase();
 
-        if (affixExamples[affix].vowel.includes(affix + "-" + rest)) {
-          return affix + "-" + rest; // vowel → dash
-        } else if (affixExamples[affix].consonant.includes(affix + rest)) {
-          return affix + rest; // consonant → no dash
-        } else {
-          // default rule if not listed
-          return "aeiou".includes(rest[0]) ? affix + "-" + rest : affix + rest;
+      for (let affix in affixExamples) {
+        if (lowerWord.startsWith(affix)) {
+          const suffix = original.substring(affix.length);
+          const firstLetterSuffix = suffix.charAt(0);
+          const isVowel = /^[aeiou]/i.test(firstLetterSuffix);
+          const hasHyphen = original.includes("-");
+          const isCapital = /^[A-ZÁÉÍÓÚÑ]/.test(original.charAt(0));
+
+          // Preserve first letter capitalization
+          const affixProper = isCapital
+            ? affix.charAt(0).toUpperCase() + affix.slice(1)
+            : affix;
+
+          if (isVowel && !hasHyphen) {
+            return `${affixProper}-${suffix}`;
+          }
+
+          if (!isVowel && hasHyphen) {
+            return `${affixProper}${suffix.replace("-", "")}`;
+          }
+
+          // If hyphen is already correct, just preserve capitalization
+          return affixProper + suffix;
         }
       }
-    }
 
-    return word;
-  });
+      return word; // hindi affix
+    })
+    .join(" ");
 }
+
 
 
 
